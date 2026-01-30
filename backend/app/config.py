@@ -1,20 +1,40 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
+# Try to load .env via python-dotenv; if not available, fall back to a simple .env parser
+try:
+    from dotenv import load_dotenv
+    # Load .env into environment (no-op if not present)
+    load_dotenv()
+except Exception:
+    # Fallback: manually parse a .env file in the backend root (if present)
+    env_path = Path(__file__).resolve().parent.parent / '.env'
+    if env_path.exists():
+        try:
+            for line in env_path.read_text(encoding='utf-8').splitlines():
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if '=' not in line:
+                    continue
+                k, v = line.split('=', 1)
+                k = k.strip()
+                v = v.strip().strip('"').strip("'")
+                # Do not overwrite existing environment variables
+                os.environ.setdefault(k, v)
+        except Exception:
+            pass
+            
 class Settings:
     # API Configuration
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-    AI_MODEL: str = os.getenv("AI_MODEL", "anthropic/claude-3.5-sonnet")
+    AI_MODEL: str = os.getenv("AI_MODEL", "google/gemini-3-pro-image-preview")
     OPENROUTER_API_URL: str = "https://openrouter.ai/api/v1/chat/completions"
-    
+
     # Server Configuration
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
-    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://tet-ai-photobooth.vercel.app/")
     
     # File paths
     BASE_DIR: Path = Path(__file__).resolve().parent.parent

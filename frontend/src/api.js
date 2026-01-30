@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Use environment variable or fallback to the production Render backend or localhost for development
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://tet-ai-photobooth-1.onrender.com' || 'http://localhost:8000';
+// Prefer the Vite env var if set at build time; fall back to the Render URL for safety.
+export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'https://tet-ai-photobooth-1.onrender.com';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -23,17 +23,9 @@ export const uploadImage = async (file) => {
   return response.data;
 };
 
-export const getProcessedImage = (imageId) => {
-  return `${API_BASE_URL}/api/image/${imageId}/processed`;
-};
-
-export const getQRCode = (imageId) => {
-  return `${API_BASE_URL}/api/image/${imageId}/qr`;
-};
-
-export const getDownloadUrl = (imageId) => {
-  return `${API_BASE_URL}/api/download/${imageId}`;
-};
+export const getProcessedImage = (imageId) => `${API_BASE_URL}/api/image/${imageId}/processed`;
+export const getQRCode = (imageId) => `${API_BASE_URL}/api/image/${imageId}/qr`;
+export const getDownloadUrl = (imageId) => `${API_BASE_URL}/api/download/${imageId}`;
 
 export const getGallery = async () => {
   const response = await api.get('/api/gallery');

@@ -1,11 +1,12 @@
 import httpx
 import base64
-from pathlib import Path
-from typing import Optional
-from PIL import Image
+import asyncio
 import io
-
+import re
+from PIL import Image
+from typing import Optional
 from app.config import settings
+import traceback
 
 class AIService:
     def __init__(self):
@@ -17,142 +18,194 @@ class AIService:
     def _load_system_prompt(self) -> str:
         """Load system prompt from file"""
         try:
-            if settings.SYSTEM_PROMPT_PATH.exists():
-                return settings.SYSTEM_PROMPT_PATH.read_text(encoding='utf-8')
-            else:
-                # Default prompt if file doesn't exist
-                return """Bạn là một nghệ sĩ AI chuyên về tranh thủy mặc Việt Nam với phong cách Thiên Mã nghinh xuân.
-                
-Nhiệm vụ của bạn là:
-1. Phân tích ảnh chụp người dùng
-2. Tạo mô tả chi tiết về cách biến đổi ảnh sang phong cách tranh thủy mặc Thiên Mã Xuân 2026
-3. Bao gồm các yếu tố: ngựa Thiên Mã, hoa đào, mây trời, màu sắc đỏ vàng kim, nét vẽ tinh tế
-4. Giữ nguyên tư thế và đặc điểm khuôn mặt của người trong ảnh
-5. Tạo không khí tết Việt Nam, mang lại may mắn và thịnh vượng
-
-Hãy trả về mô tả chi tiết để chỉnh sửa ảnh theo phong cách này."""
+            with open(settings.SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
+                return f.read().strip()
         except Exception as e:
-            print(f"Error loading system prompt: {e}")
-            return "You are an AI artist specializing in Vietnamese traditional ink painting style."
+            print(f"⚠️ Warning: Could not load system prompt: {e}")
+            return "Transform this photo to Vietnamese Tet theme with Ao Dai and festive background."
     
     async def process_image_with_ai(
         self,
         image: Image.Image,
         user_prompt: Optional[str] = None
     ) -> str:
+        """Process image with AI (Text response only)"""
+        # (This method seems unused for image generation but kept for compatibility)
+        pass 
+        return "Deprecation Warning: Use generate_artistic_image instead"
+
+    async def generate_artistic_image(
+        self,
+        original_image: Image.Image
+    ) -> Image.Image:
         """
-        Process image with AI using OpenRouter API
-        Returns: AI-generated description or instructions
+        Generate artistic image using AI
+        Returns: AI-generated Image from OpenRouter API
         """
         try:
-            # Convert image to base64
+            # 1. Convert image to base64
             buffered = io.BytesIO()
-            image.save(buffered, format="PNG")
+            original_image.save(buffered, format="PNG")
             img_base64 = base64.b64encode(buffered.getvalue()).decode()
             
-            # Prepare prompt
-            if user_prompt is None:
-                user_prompt = "Hãy biến đổi ảnh này sang phong cách tranh thủy mặc Thiên Mã nghinh xuân với màu sắc đỏ vàng kim, hoa đào, và không khí tết Việt Nam. Giữ nguyên người trong ảnh nhưng thêm các yếu tố nghệ thuật truyền thống."
+            # 2. Ensure API key
+            if not self.api_key:
+                raise Exception("❌ OPENROUTER_API_KEY not configured in .env")
             
-            # Call OpenRouter API
-            async with httpx.AsyncClient(timeout=60.0) as client:
+            print(f"🤖 Calling AI image generation...")
+            print(f"   Model: {self.model}")
+            
+            # 3. Call OpenRouter API
+            async with httpx.AsyncClient(timeout=120.0) as client:
                 headers = {
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json",
-                    "HTTP-Referer": "http://localhost:8000",
-                    "X-Title": "AI Photobooth Tet"
                 }
                 
                 payload = {
                     "model": self.model,
+                    "max_tokens": 2000,
                     "messages": [
-                        {
-                            "role": "system",
-                            "content": self.system_prompt
-                        },
                         {
                             "role": "user",
                             "content": [
+                                {
+                                    "type": "text",
+                                    "text": self.system_prompt
+                                },
                                 {
                                     "type": "image_url",
                                     "image_url": {
                                         "url": f"data:image/png;base64,{img_base64}"
                                     }
-                                },
-                                {
-                                    "type": "text",
-                                    "text": user_prompt
                                 }
                             ]
                         }
                     ]
                 }
                 
-                response = await client.post(
-                    self.api_url,
-                    headers=headers,
-                    json=payload
-                )
-                response.raise_for_status()
+                print(f"📤 Sending request to OpenRouter...")
+                response = await client.post(self.api_url, headers=headers, json=payload)
+                
+                if response.status_code != 200:
+                    raise Exception(f"OpenRouter API error: {response.status_code} - {response.text}")
                 
                 result = response.json()
-                ai_response = result["choices"][0]["message"]["content"]
                 
-                return ai_response
+                if "choices" not in result:
+                    raise Exception(f"Invalid API response: {result}")
+                
+                message = result["choices"][0]["message"]
+                
+                # --- NEW ROBUST IMAGE HANDLING LOGIC ---
+                if message.get("images"):
+                    print(f"✅ AI returned {len(message['images'])} image(s)")
+                    
+                    # Take the LAST image (usually the transformed one)
+                    img_data = message["images"][-1]
+                    
+                    with open("error.log", "a", encoding="utf-8") as f:
+                         f.write(f"\n--- NEW RESPONSE ---\n")
+                         f.write(f"Raw img_data type: {type(img_data)}\n")
+                         f.write(f"Raw img_data: {str(img_data)[:500]}\n")
+
+                    print(f"📦 Processing image at index -1 (Type: {type(img_data)})")
+                    
+                    image_url_or_data = ""
+                    
+                    # Extract URL based on structure
+                    if isinstance(img_data, dict):
+                        if "image_url" in img_data and isinstance(img_data["image_url"], dict):
+                            image_url_or_data = img_data["image_url"].get("url", "")
+                        elif "url" in img_data:
+                            image_url_or_data = img_data["url"]
+                        else:
+                            # Fallback: maybe it's a direct url key? or try stringifying
+                            image_url_or_data = str(img_data)
+                    elif isinstance(img_data, str):
+                        image_url_or_data = img_data
+                    else:
+                        image_url_or_data = str(img_data)
+                        
+                    # Force string
+                    image_url_or_data = str(image_url_or_data)
+                    
+                    with open("error.log", "a", encoding="utf-8") as f:
+                        f.write(f"Parsed image URL prefix: {image_url_or_data[:30]}\n")
+                    
+                    try:
+                        final_img = None
+                        
+                        if image_url_or_data.startswith("data:image"):
+                            with open("error.log", "a", encoding="utf-8") as f: f.write("Step: Decoding base64...\n")
+                            base64_str = image_url_or_data.split(",")[1]
+                            img_bytes = base64.b64decode(base64_str)
+                            final_img = Image.open(io.BytesIO(img_bytes))
+                            with open("error.log", "a", encoding="utf-8") as f: f.write(f"Step: Decoded image size: {final_img.size}\n")
+                            
+                        elif image_url_or_data.startswith("http"):
+                            with open("error.log", "a", encoding="utf-8") as f: f.write("Step: Downloading HTTP...\n")
+                            img_response = await client.get(image_url_or_data)
+                            img_response.raise_for_status()
+                            final_img = Image.open(io.BytesIO(img_response.content))
+                            with open("error.log", "a", encoding="utf-8") as f: f.write(f"Step: Downloaded image size: {final_img.size}\n")
+                        
+                        else:
+                            raise Exception(f"Unknown image format: {image_url_or_data[:50]}...")
+                            
+                        # Force load image data
+                        final_img.load()
+                        with open("error.log", "a", encoding="utf-8") as f: f.write("Step: Image loaded fully. Returning.\n")
+                        return final_img
+
+                    except Exception as inner_e:
+                        with open("error.log", "a", encoding="utf-8") as f: 
+                            f.write(f"❌ INNER ERROR: {inner_e}\n")
+                            f.write(traceback.format_exc())
+                        raise inner_e
+
+
+
+                
+                # Fallback checking content for markdown
+                content = message.get("content", "")
+                if "data:image" in content:
+                    match = re.search(r'data:image/[^;]+;base64,([A-Za-z0-9+/=]+)', content)
+                    if match:
+                        return Image.open(io.BytesIO(base64.b64decode(match.group(1))))
+                
+                print("⚠️ No image found, using fallback filters")
+                return await self._apply_fallback_filters(original_image)
                 
         except Exception as e:
-            print(f"Error processing image with AI: {e}")
-            raise Exception(f"AI processing failed: {str(e)}")
-    
-    async def generate_artistic_image(
-        self,
-        original_image: Image.Image
-    ) -> Image.Image:
-        """
-        Generate artistic version of the image
-        In a real implementation, this would use image generation models
-        For now, it applies filters as a placeholder
-        """
-        # TODO: Integrate with image generation model (e.g., Stable Diffusion via OpenRouter)
-        # For now, apply artistic filter as placeholder
-        
-        from PIL import ImageFilter, ImageEnhance
-        
-        # Create a copy
-        artistic = original_image.copy()
-        
-        # Apply artistic filters
-        artistic = artistic.filter(ImageFilter.SMOOTH_MORE)
-        
-        # Adjust colors for Tet theme (warmer tones)
-        enhancer = ImageEnhance.Color(artistic)
-        artistic = enhancer.enhance(1.3)
-        
-        enhancer = ImageEnhance.Contrast(artistic)
-        artistic = enhancer.enhance(1.2)
-        
-        # Add sepia-like effect
-        width, height = artistic.size
-        pixels = artistic.load()
-        
-        for i in range(width):
-            for j in range(height):
-                r, g, b = artistic.getpixel((i, j))[:3]
-                
-                # Sepia transformation with red-gold tint
-                tr = int(0.393 * r + 0.769 * g + 0.189 * b)
-                tg = int(0.349 * r + 0.686 * g + 0.168 * b)
-                tb = int(0.272 * r + 0.534 * g + 0.131 * b)
-                
-                # Add more red/gold for Tet theme
-                tr = min(255, tr + 20)
-                tg = min(255, tg + 10)
-                
-                if artistic.mode == 'RGBA':
-                    pixels[i, j] = (tr, tg, tb, artistic.getpixel((i, j))[3])
-                else:
-                    pixels[i, j] = (tr, tg, tb)
-        
-        return artistic
+            with open("error.log", "a", encoding="utf-8") as f:
+                f.write(f"\n{'='*20} ERROR {type(e).__name__} {'='*20}\n")
+                f.write(f"Error: {e}\n")
+                f.write(traceback.format_exc())
+                try:
+                    # Log local variables if possible, or at least the raw message if available
+                    pass
+                except:
+                    pass
+            
+            traceback.print_exc()
+            print(f"❌ Error in AI image generation: {e}")
+            raise e
 
+
+    
+    async def _apply_fallback_filters(self, img: Image.Image) -> Image.Image:
+        """Apply basic PIL filters as fallback"""
+        def _filter_sync(image):
+            from PIL import ImageFilter, ImageEnhance
+            print("🎨 Applying fallback PIL filters...")
+            artistic = image.copy()
+            artistic = artistic.filter(ImageFilter.SMOOTH_MORE)
+            enhancer = ImageEnhance.Color(artistic)
+            artistic = enhancer.enhance(1.3)
+            return artistic
+        
+        return await asyncio.to_thread(_filter_sync, img)
+
+# Global instance
 ai_service = AIService()

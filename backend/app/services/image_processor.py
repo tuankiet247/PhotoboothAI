@@ -3,6 +3,8 @@ import io
 import base64
 from pathlib import Path
 from typing import Tuple
+import asyncio
+import cv2
 
 class ImageProcessor:
     @staticmethod
@@ -18,8 +20,7 @@ class ImageProcessor:
                 new_height = max_size
                 new_width = int(width * (max_size / height))
             
-            image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
-        
+            image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)        
         return image
     
     @staticmethod
@@ -61,14 +62,14 @@ class ImageProcessor:
         max_size: int = 2048,
         quality: int = 85
     ) -> Tuple[Image.Image, bytes]:
-        """Process uploaded image: resize and compress"""
-        # Open image
-        image = Image.open(io.BytesIO(file_content))
-        
-        # Resize
-        image = ImageProcessor.resize_image(image, max_size)
-        
-        # Compress
-        compressed_data = ImageProcessor.compress_image(image, quality)
-        
-        return image, compressed_data
+        """Process uploaded image: resize and compress (runs blocking ops in thread)
+
+        Returns PIL Image and compressed bytes.
+        """
+        def _process_sync(content: bytes, max_size: int, quality: int):
+            image = Image.open(io.BytesIO(content))
+            image = ImageProcessor.resize_image(image, max_size)
+            compressed_data = ImageProcessor.compress_image(image, quality)
+            return image, compressed_data
+
+        return await asyncio.to_thread(_process_sync, file_content, max_size, quality)
