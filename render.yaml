@@ -14,17 +14,15 @@ services:
         value: anthropic/claude-3.5-sonnet
       - key: HOST
         value: 0.0.0.0
-      - key: PORT
-        fromGroup: web
+      - fromGroup: web
       - key: FRONTEND_URL
         value: https://ai-photobooth-frontend.onrender.com
     healthCheckPath: /health
     autoDeploy: true
 
   # Frontend Static Site
-  - type: web
+  - type: static
     name: ai-photobooth-frontend
-    runtime: node
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: ./frontend/dist
     envVars:
