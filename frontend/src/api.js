@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Use environment variable or fallback to localhost for development
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Use environment variable or fallback to the production Render backend or localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://tet-ai-photobooth-1.onrender.com' || 'http://localhost:8000';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
