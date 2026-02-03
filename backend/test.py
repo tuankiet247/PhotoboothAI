@@ -38,7 +38,7 @@ response = requests.post(
         "Content-Type": "application/json",
     },
     data=json.dumps({
-        "model": "google/gemini-3-pro-image-preview", # Lưu ý: Chọn đúng model hỗ trợ Vision/Image Generation
+        "model": "black-forest-labs/flux.2-max", # Lưu ý: Chọn đúng model hỗ trợ Vision/Image Generation
         "max_tokens": 2000,
         "messages": [
             {

@@ -14,6 +14,7 @@ python-dotenv==1.0.1
 
 # HTTP client
 httpx==0.27.0
+requests>=2.31.0
 
 # QR Code generation
 qrcode[pil]==7.4.2

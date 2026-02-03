@@ -1,13 +1,21 @@
 import axios from 'axios';
 
-// Prefer the Vite env var if set at build time; fall back to the Render URL for safety.
-export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'https://tet-ai-photobooth-1.onrender.com';
+// Auto-detect environment:
+// - Development (local): use localhost:8000
+// - Production (deployed): use VITE_API_URL env var or fallback to Render URL
+const isDev = import.meta.env.DEV;
+export const API_BASE_URL = isDev 
+  ? 'http://localhost:8000'
+  : (import.meta.env.VITE_API_URL || 'https://tet-ai-photobooth-1.onrender.com');
+
+console.log(`[API] Environment: ${isDev ? 'Development' : 'Production'}, URL: ${API_BASE_URL}`);
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 180000, // 3 minutes timeout for AI processing
 });
 
 export const uploadImage = async (file) => {
@@ -23,8 +31,8 @@ export const uploadImage = async (file) => {
   return response.data;
 };
 
-export const getProcessedImage = (imageId) => `${API_BASE_URL}/api/image/${imageId}/processed`;
-export const getQRCode = (imageId) => `${API_BASE_URL}/api/image/${imageId}/qr`;
+export const getProcessedImage = (imageId) => `${API_BASE_URL}/api/image/${imageId}/processed?t=${Date.now()}`;
+export const getQRCode = (imageId) => `${API_BASE_URL}/api/image/${imageId}/qr?t=${Date.now()}`;
 export const getDownloadUrl = (imageId) => `${API_BASE_URL}/api/download/${imageId}`;
 
 export const getGallery = async () => {
