@@ -6,7 +6,7 @@ import axios from 'axios';
 const isDev = import.meta.env.DEV;
 export const API_BASE_URL = isDev 
   ? 'http://localhost:8000'
-  : (import.meta.env.VITE_API_URL || 'https://tet-ai-photobooth-1.onrender.com');
+  : (import.meta.env.VITE_API_URL || 'https://photoboothai.onrender.com');
 
 console.log(`[API] Environment: ${isDev ? 'Development' : 'Production'}, URL: ${API_BASE_URL}`);
 

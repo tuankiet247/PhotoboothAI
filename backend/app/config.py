@@ -35,6 +35,7 @@ class Settings:
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://tet-ai-photobooth.vercel.app/")
+    BACKEND_URL: str = os.getenv("BACKEND_URL", "https://photoboothai.onrender.com")
     
     # File paths
     BASE_DIR: Path = Path(__file__).resolve().parent.parent

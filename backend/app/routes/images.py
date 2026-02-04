@@ -75,7 +75,7 @@ async def upload_image(file: UploadFile = File(...)):
 # Generate QR code (chỉ khi ENABLE_QR_CODE = True)
         qr_code_url = None
         if settings.ENABLE_QR_CODE:
-            base_url = os.getenv("BACKEND_URL", f"http://{settings.HOST}:{settings.PORT}")
+            base_url = settings.BACKEND_URL
             qr_filename = f"{image_id}_qr.png"
             qr_path = settings.PROCESSED_DIR / qr_filename
 
