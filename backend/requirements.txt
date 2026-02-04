@@ -21,3 +21,4 @@ qrcode[pil]==7.4.2
 
 # Additional dependencies for production
 gunicorn==21.2.0
+opencv-python
