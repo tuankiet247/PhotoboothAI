@@ -24,6 +24,46 @@ class ImageProcessor:
         return image
     
     @staticmethod
+    def crop_to_aspect_ratio(image: Image.Image, aspect_ratio: Tuple[int, int] = (9, 16)) -> Image.Image:
+        """Crop image to target aspect ratio (center crop)
+        
+        Args:
+            image: PIL Image
+            aspect_ratio: Tuple (width, height) - e.g., (9, 16) for portrait
+        
+        Returns:
+            Cropped image with target aspect ratio
+        """
+        width, height = image.size
+        target_w, target_h = aspect_ratio
+        target_ratio = target_w / target_h
+        current_ratio = width / height
+        
+        if abs(current_ratio - target_ratio) < 0.01:
+            # Already correct ratio
+            return image
+        
+        if current_ratio > target_ratio:
+            # Image is too wide, crop width
+            new_width = int(height * target_ratio)
+            new_height = height
+            left = (width - new_width) // 2
+            top = 0
+        else:
+            # Image is too tall, crop height
+            new_width = width
+            new_height = int(width / target_ratio)
+            left = 0
+            top = (height - new_height) // 2
+        
+        right = left + new_width
+        bottom = top + new_height
+        
+        cropped = image.crop((left, top, right, bottom))
+        print(f"🖼️ Cropped to {aspect_ratio[0]}:{aspect_ratio[1]} ratio: {image.size} → {cropped.size}")
+        return cropped
+    
+    @staticmethod
     def compress_image(image: Image.Image, quality: int = 85) -> bytes:
         """Compress image to JPEG with specified quality"""
         output = io.BytesIO()

@@ -1,40 +1,97 @@
-# ROLE
-You are an expert in seamless background replacement and clothing transformation for portrait photography. Your ONLY tasks are: 1) Replace the background with a Tet-themed setting, and 2) Change clothing to Ao Dai. CRITICAL: Keep ALL lighting, colors, and tones from the original photo unchanged.
+🎨 TẾT PHOTOBOOTH COMPOSITE - THIÊN MÃ NGHINH XUÂN 2026
 
-# THEME: THIEN MA NGHINH XUAN
-- Setting: A luxurious, vibrant, and cozy Lunar New Year (Tet) festival atmosphere.
-- Key Elements: Blooming yellow apricot blossoms (Hoa Mai), pink peach blossoms (Hoa Dao), sophisticated red lanterns, and subtle distant fireworks. Incorporate stylized "Heavenly Horse" (Thien Ma) symbols to represent luck and success.
-- Color Palette for BACKGROUND ONLY: Festive Red, Royal Gold, and Fresh Pink. 
-- Lighting: DO NOT TOUCH THE LIGHTING. Use the exact same lighting on the person as in the original photo - same direction, same intensity, same color temperature, same shadows. The background should match this existing lighting, not the other way around.
+📥 INPUT FILES:
+1. mascot.png - Golden mechanical horse mascot "Thiên Mã" (LOAD FIRST)
+2. Logo.png - FPT/Brand logo (LOAD SECOND)
+3. Person Photo - Real camera photograph of the subject (COMPOSITE LAST)
 
-# SUBJECT APPEARANCE & IDENTITY
-- Attire: Change ONLY the clothing to a premium traditional Vietnamese Ao Dai. Keep all other aspects unchanged.
-- Identity Preservation: Strictly maintain the user's facial structure, unique features (eyes, nose, mouth), skin tone, and proportions from the source image. No facial distortion or identity shifting allowed.
-- Skin & Color Preservation: Keep the original skin tone, face colors, and overall color grading exactly as in the source photo. Do not apply color correction, white balance adjustment, or brightness changes to the person.
-- Lighting Preservation: ABSOLUTE REQUIREMENT - The person must have the exact same lighting as the original photo. Same light direction, same shadows, same highlights, same color cast. Do not relight the person.
+═══════════════════════════════════════════════════════════
+🔄 WORKFLOW ORDER (FOLLOW THIS SEQUENCE):
+═══════════════════════════════════════════════════════════
 
-# POSITIVE PROMPT FOR GENERATION
-"Professional background replacement and clothing transformation. 8k resolution, photorealistic. Task 1: Replace ONLY the background with 'Thien Ma Nghinh Xuan' Tet theme - blooming apricot and peach blossoms, red lanterns, heavenly horse symbols. Task 2: Change ONLY the person's clothing to an elegant Vietnamese Ao Dai. CRITICAL REQUIREMENT: Preserve 100% of the original lighting on the person - exact same light direction, intensity, shadows, highlights, and color temperature as the source photo. Do not relight, do not color grade, do not adjust brightness on the person. The person should look like they are lit by the exact same light source as the original. Only the background changes. Natural seamless integration, photorealistic quality."
+📌 STEP 1: LOAD MASCOT (mascot.png)
+- Open and load mascot.png file FIRST
+- This is a golden mechanical "Thiên Mã" horse with circuit board patterns
+- PRESERVE 100% ORIGINAL DESIGN - no modifications allowed
+- Keep ready for compositing
 
-# NEGATIVE PROMPT
-- Facial Issues: distorted face, altered facial features, unrecognizable person, morphed identity, mismatched skin tones, asymmetrical eyes, plastic skin, over-blurred face.
-- Lighting Violations (CRITICAL): changed lighting, relit scene, different light direction, new light source, modified shadows, adjusted brightness on person, color correction on person, white balance change, warm filter, cool filter, lighting enhancement, dramatic lighting, studio lighting replacement, different color temperature.
-- Color Violations: color grading on person, saturation adjustment on face, hue shift on skin, brightness correction on subject, contrast modification on person, tone mapping on face.
-- Body/Anatomy: extra fingers, mutated hands, deformed limbs, bad anatomy, unnatural body poses.
-- Quality Issues: blurry, low resolution, grainy, noisy, pixelated, out of focus, motion blur, compression artifacts.
-- Artistic Issues: cartoon, anime, 3D render, illustration, drawing, painting, oil painting, fake-looking, uncanny valley.
-- Clutter: messy background, text, watermarks, logos, signatures.
+📌 STEP 2: LOAD LOGO (Logo.png)  
+- Open and load Logo.png file
+- Keep original design intact
+- Will be placed in top-left corner
 
-# EXECUTION GUIDELINES
-1. Background Replacement: Replace ONLY the background with festive Tet scenery (flowers, lanterns, etc.). The background should be placed behind the person without affecting them.
-2. Clothing Change: Transform ONLY the clothing to Vietnamese Ao Dai. Everything else on the person stays identical to the original.
-3. Lighting Preservation - ABSOLUTE RULE: The person must retain 100% of their original lighting. This means:
-   - Same light direction (if lit from left, keep it from left)
-   - Same light intensity (if dim, keep it dim; if bright, keep it bright)
-   - Same shadows and highlights in exact same positions
-   - Same color temperature (if warm/yellow light, keep it warm/yellow; if cool/white, keep it cool/white)
-   - Same skin tone and face colors
-   - Do NOT add new lights, do NOT relight, do NOT color correct the person
-   - The background should adapt to match the person's existing lighting, not vice versa
-4. Seamless Integration: Blend the edges between person and background naturally.
-5. Photorealism: The result must look like a real photograph, not a digital composite.
+📌 STEP 3: CREATE BACKGROUND
+- Create illustrated Tết background:
+  + Gradient: Deep red → warm orange-gold
+  + Gold circuit board patterns (tech style)
+  + Soft golden bokeh lights
+  + Traditional Vietnamese border (hồi văn) at top
+  + 3 red lanterns hanging from top-right
+  + Câu đối (red banners) on left side with text: "Chúc", "Mừng", "Sức", "Như", "Nắng"
+  + Yellow Hoa Mai branches at bottom
+  + Pink Hoa Đào branches at corners
+  + Red table with mâm ngũ quả and gold ingots on right
+
+📌 STEP 4: PLACE MASCOT INTO BACKGROUND
+- PASTE mascot.png (loaded in Step 1) into the RIGHT side of background
+- Position: behind where the person will be placed
+- Scale proportionally to fit scene
+- ⚠️ DO NOT REDRAW - just paste the original mascot image
+
+📌 STEP 5: PLACE LOGO INTO BACKGROUND
+- PASTE Logo.png (loaded in Step 2) into TOP-LEFT corner
+- Scale appropriately, keep visible
+- ⚠️ DO NOT REDRAW - just paste the original logo
+
+📌 STEP 6: COMPOSITE PERSON (LAST STEP)
+- Place the person into the scene - MAIN SUBJECT
+- 🎨 AUTO-LAYOUT: AI decides the best position for the person:
+  + Can be center, left, right, or any position that looks natural
+  + Consider balance with mascot and other elements
+  + Create harmonious composition - person and mascot together
+  + Ensure person is visible and prominent (but doesn't have to be center)
+- FACE: Preserve 100% identical to input photo
+- POSE: Auto-adjust if needed to fit the Tết scene:
+  + If pose doesn't fit → create natural sitting/standing pose
+  + Options: sitting on red platform, chúc Tết pose, relaxed pose, interacting with mascot
+  + If bust shot only → generate full body with Tết pose
+- Blend person naturally with lighting/shadows
+
+═══════════════════════════════════════════════════════════
+
+⚠️ CRITICAL RULES:
+
+🎭 FACE PRESERVATION:
+- Face MUST remain 100% IDENTICAL to input
+- NO alterations to facial features, skin texture, expression
+- Only body pose can change, NEVER the face
+
+🐴 MASCOT PRESERVATION:
+- ❗ COPY EXACT PIXELS from mascot.png - NO MODIFICATIONS
+- ❗ DO NOT redraw, regenerate, or alter the mascot
+- ❗ Just PASTE the original file into the scene
+- ❗ Only allowed change: SCALE (resize proportionally)
+
+🏷️ LOGO PRESERVATION:
+- Copy exact pixels from Logo.png
+- Just paste, don't redraw
+
+🌸 FLOWERS (ONLY THESE):
+- Hoa Mai: Yellow/gold, 5-petal - BOTTOM
+- Hoa Đào: Pink - CORNERS
+- ❌ NO chrysanthemums, daisies, sunflowers
+
+🚫 FORBIDDEN:
+- Redrawing/regenerating mascot
+- Altering person's face
+- Missing logo
+- Wrong flower types
+- Mascot blocking the person
+
+✅ FINAL OUTPUT:
+- Illustrated Tết background
+- Mascot (original mascot.png) placed in scene
+- Logo (original Logo.png) visible
+- Person composited with AUTO-LAYOUT (best position decided by AI)
+- Harmonious composition with all elements balanced
+- Festive Thiên Mã Nghinh Xuân 2026 theme

@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        serif: ['Noto Serif', 'Crimson Text', 'Georgia', 'serif'],
+      },
       animation: {
         'float': 'float 3s ease-in-out infinite',
         'spin-slow': 'spin 8s linear infinite',

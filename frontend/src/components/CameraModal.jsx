@@ -5,6 +5,7 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const countdownRef = useRef(null);
   const [error, setError] = useState(null);
   const [isReady, setIsReady] = useState(false);
   
@@ -12,6 +13,10 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
   const [cameras, setCameras] = useState([]);
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [showCameraList, setShowCameraList] = useState(false);
+  
+  // Countdown state
+  const [countdown, setCountdown] = useState(null);
+  const [isCountingDown, setIsCountingDown] = useState(false);
 
   // Load danh sách camera khi mở modal
   useEffect(() => {
@@ -19,9 +24,21 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
       loadCameras();
     } else {
       stopCamera();
+      // Clear countdown khi đóng modal
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+        countdownRef.current = null;
+      }
+      setCountdown(null);
+      setIsCountingDown(false);
     }
 
-    return () => stopCamera();
+    return () => {
+      stopCamera();
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+      }
+    };
   }, [isOpen]);
 
   // Start camera khi chọn camera mới
@@ -102,6 +119,39 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
       streamRef.current = null;
     }
     setIsReady(false);
+  };
+
+  // Bắt đầu đếm ngược 5 giây
+  const startCountdown = () => {
+    if (!isReady || isCountingDown) return;
+    
+    setIsCountingDown(true);
+    setCountdown(5);
+    
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          // Dừng countdown và chụp ảnh
+          clearInterval(countdownRef.current);
+          countdownRef.current = null;
+          setIsCountingDown(false);
+          // Chụp ảnh ngay
+          setTimeout(() => capturePhoto(), 100);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Hủy đếm ngược
+  const cancelCountdown = () => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+    setCountdown(null);
+    setIsCountingDown(false);
   };
 
   const capturePhoto = () => {
@@ -212,6 +262,25 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
                 </div>
               </div>
             )}
+            
+            {/* Countdown Display - Hiển thị số đếm ngược lớn */}
+            {isCountingDown && countdown !== null && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="relative">
+                  {/* Vòng tròn countdown */}
+                  <div className="w-48 h-48 rounded-full border-8 border-amber-500/30 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-pulse">
+                    <span className="text-9xl font-bold text-amber-400 drop-shadow-[0_0_30px_rgba(245,158,11,0.8)]">
+                      {countdown}
+                    </span>
+                  </div>
+                  {/* Flash effect khi số thay đổi */}
+                  <div 
+                    key={countdown}
+                    className="absolute inset-0 rounded-full bg-amber-500/20 animate-ping"
+                  />
+                </div>
+              </div>
+            )}
           </>
         )}
         <canvas ref={canvasRef} className="hidden" />
@@ -220,20 +289,38 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
       {/* Footer Controls */}
       <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/80 to-transparent z-10">
         <div className="flex items-center justify-center gap-8">
-          {/* Nút chụp - ĐƯỢC LÀM NỔI BẬT HƠN */}
-          <button
-            onClick={capturePhoto}
-            disabled={!isReady}
-            className="relative w-20 h-20 rounded-full bg-white border-[6px] border-amber-500 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-110 active:scale-95 transition-all shadow-2xl shadow-amber-500/50"
-            aria-label="Chụp ảnh"
-          >
-            <div className="absolute inset-0 rounded-full bg-white flex items-center justify-center">
-              <Camera size={36} className="text-red-950" strokeWidth={2.5} />
-            </div>
-          </button>
+          {isCountingDown ? (
+            /* Nút hủy khi đang đếm ngược */
+            <button
+              onClick={cancelCountdown}
+              className="relative w-20 h-20 rounded-full bg-red-600 border-[6px] border-red-400 hover:scale-110 active:scale-95 transition-all shadow-2xl"
+              aria-label="Hủy đếm ngược"
+            >
+              <div className="absolute inset-0 rounded-full bg-red-600 flex items-center justify-center">
+                <X size={36} className="text-white" strokeWidth={2.5} />
+              </div>
+            </button>
+          ) : (
+            /* Nút chụp - ĐƯỢC LÀM NỔI BẬT HƠN */
+            <button
+              onClick={startCountdown}
+              disabled={!isReady}
+              className="relative w-20 h-20 rounded-full bg-white border-[6px] border-amber-500 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-110 active:scale-95 transition-all shadow-2xl shadow-amber-500/50"
+              aria-label="Chụp ảnh"
+            >
+              <div className="absolute inset-0 rounded-full bg-white flex items-center justify-center">
+                <Camera size={36} className="text-red-950" strokeWidth={2.5} />
+              </div>
+            </button>
+          )}
         </div>
         <p className="text-center text-white/80 text-base font-semibold mt-4">
-          {isReady ? 'Nhấn nút tròn để chụp' : 'Đang mở camera...'}
+          {!isReady 
+            ? 'Đang mở camera...' 
+            : isCountingDown 
+              ? `Chuẩn bị... ${countdown}s - Nhấn để hủy` 
+              : 'Nhấn nút tròn để bắt đầu đếm ngược 5s'
+          }
         </p>
       </div>
     </div>

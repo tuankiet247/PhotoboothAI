@@ -53,6 +53,10 @@ async def upload_image(file: UploadFile = File(...)):
         processed_image = await ai_service.generate_artistic_image(resized_image)
         print(f"✅ AI returned image: {processed_image.size} ({processed_image.mode})")
         
+        # Crop ảnh về tỉ lệ 9:16
+        print(f"📐 Cropping to {settings.OUTPUT_ASPECT_RATIO[0]}:{settings.OUTPUT_ASPECT_RATIO[1]} ratio...")
+        processed_image = ImageProcessor.crop_to_aspect_ratio(processed_image, settings.OUTPUT_ASPECT_RATIO)
+        
         # Save processed image
         processed_filename = f"{image_id}_processed.jpg"
         processed_path = settings.PROCESSED_DIR / processed_filename
@@ -68,18 +72,23 @@ async def upload_image(file: UploadFile = File(...)):
         
         print(f"✅ Saved processed image to: {processed_path}")
         
-        # Generate QR code
-        base_url = os.getenv("BACKEND_URL", f"http://{settings.HOST}:{settings.PORT}")
-        qr_filename = f"{image_id}_qr.png"
-        qr_path = settings.PROCESSED_DIR / qr_filename
-        
-        print(f"📱 Generating QR code...")
-        QRCodeGenerator.generate_download_url_qr(
-            image_id=image_id,
-            base_url=base_url,
-            output_path=str(qr_path)
-        )
-        print(f"✅ Generated QR code at: {qr_path}")
+# Generate QR code (chỉ khi ENABLE_QR_CODE = True)
+        qr_code_url = None
+        if settings.ENABLE_QR_CODE:
+            base_url = os.getenv("BACKEND_URL", f"http://{settings.HOST}:{settings.PORT}")
+            qr_filename = f"{image_id}_qr.png"
+            qr_path = settings.PROCESSED_DIR / qr_filename
+
+            print(f"📱 Generating QR code...")
+            QRCodeGenerator.generate_download_url_qr(
+                image_id=image_id,
+                base_url=base_url,
+                output_path=str(qr_path)
+            )
+            print(f"✅ Generated QR code at: {qr_path}")
+            qr_code_url = f"/api/image/{image_id}/qr"
+        else:
+            print(f"⏭️ Skipping QR code generation (ENABLE_QR_CODE=False)")
         
         print(f"\n{'='*60}")
         print(f"✅ PROCESSING COMPLETE")
@@ -91,7 +100,7 @@ async def upload_image(file: UploadFile = File(...)):
             "success": True,
             "image_id": image_id,
             "processed_image_url": f"/api/image/{image_id}/processed",
-            "qr_code_url": f"/api/image/{image_id}/qr",
+            "qr_code_url": qr_code_url,  # None nếu ENABLE_QR_CODE=False
             "download_url": f"/api/download/{image_id}"
         }
         

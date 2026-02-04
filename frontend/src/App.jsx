@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Download, Share2, Sparkles, Image as ImageIcon, X, Upload } from 'lucide-react';
+import { Camera, Download, Share2, Sparkles, Image as ImageIcon, X, Upload, Heart } from 'lucide-react';
 
 // --- Components ---
 import CameraModal from './components/CameraModal';
+import PetalsFalling from './components/PetalsFalling';
+import Fireworks from './components/Fireworks';
 
 // --- GIẢ ĐỊNH API IMPORT (Giữ nguyên như file cũ của bạn) ---
 import { uploadImage, getProcessedImage, getQRCode, getDownloadUrl, getGallery } from './api';
@@ -138,24 +140,7 @@ const App = () => {
 
   // --- RENDER HELPERS ---
 
-  // Hiệu ứng hoa rơi
-  const renderPetals = () => {
-    return Array.from({ length: 15 }).map((_, i) => (
-      <div 
-        key={i}
-        className="absolute animate-bounce opacity-70 pointer-events-none text-pink-300"
-        style={{
-          top: `-20px`,
-          left: `${Math.random() * 100}%`,
-          animationDuration: `${Math.random() * 3 + 2}s`,
-          animationDelay: `${Math.random() * 5}s`,
-          fontSize: `${Math.random() * 10 + 15}px`
-        }}
-      >
-        🌸
-      </div>
-    ));
-  };
+
 
   // Hiệu ứng thông báo lỗi
   const renderError = () => {
@@ -171,22 +156,41 @@ const App = () => {
   // --- MAIN RENDER ---
 
   return (
-    <div className="min-h-screen bg-red-950 text-amber-50 font-serif overflow-hidden relative selection:bg-amber-500">
-      {/* Background Decor */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
-        <div className="absolute -top-20 -left-20 w-96 h-96 border-[40px] border-amber-500 rounded-full"></div>
-        <div className="absolute -bottom-20 -right-20 w-96 h-96 border-[40px] border-amber-500 rounded-full"></div>
+    <div className="min-h-screen animated-gradient text-amber-50 font-serif overflow-hidden relative selection:bg-amber-500">
+      {/* Background Decor với hiệu ứng glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-20 -left-20 w-96 h-96 border-[40px] border-amber-500/20 rounded-full ring-glow"></div>
+        <div className="absolute -bottom-20 -right-20 w-96 h-96 border-[40px] border-amber-500/20 rounded-full ring-glow" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/4 right-10 w-32 h-32 border-[15px] border-pink-400/10 rounded-full ring-glow" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-1/3 left-5 w-24 h-24 border-[10px] border-amber-400/10 rounded-full ring-glow" style={{ animationDelay: '3s' }}></div>
       </div>
       
-      {renderPetals()}
+      {/* Hiệu ứng hoa đào rơi - Nhiều hơn */}
+      <PetalsFalling count={60} />
+      
+      {/* Hiệu ứng pháo hoa */}
+      <Fireworks show={step === 'home' || step === 'result'} intensity={step === 'result' ? 'high' : 'medium'} />
 
       <div className="max-w-md mx-auto w-full min-h-screen flex flex-col p-4 sm:p-6 relative z-10">
         
         {/* Header */}
-        <header className="text-center mb-6">
-          <h1 className="text-4xl font-bold tracking-widest text-amber-400 drop-shadow-lg">THIÊN MÃ</h1>
-          <h2 className="text-xl tracking-tighter text-amber-200 uppercase">Nghinh Xuân 2026</h2>
-          <div className="h-1 w-24 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto mt-2"></div>
+        <header className="text-center mb-8 relative">
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-60">
+            <span className="text-2xl animate-float" style={{ animationDelay: '0s' }}>🌸</span>
+            <span className="text-lg animate-float" style={{ animationDelay: '0.5s' }}>✨</span>
+            <span className="text-2xl animate-float" style={{ animationDelay: '1s' }}>🌸</span>
+          </div>
+          
+          <h1 className="text-5xl font-bold tracking-widest text-amber-400 drop-shadow-lg mt-6">
+            THIÊN MÃ
+          </h1>
+          <h2 className="text-xl tracking-[0.3em] text-amber-200/90 uppercase mt-1 flex items-center justify-center gap-3">
+            <span className="text-pink-300">❀</span>
+            Nghinh Xuân 2026
+            <span className="text-pink-300">❀</span>
+          </h2>
+          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto mt-3 rounded-full"></div>
+          <p className="text-xs text-amber-200/50 mt-2 tracking-wider">✦ AI Photobooth ✦</p>
         </header>
 
         {/* Error Area */}
@@ -199,38 +203,54 @@ const App = () => {
           {step === 'home' && (
             <div className="space-y-8 text-center animate-in fade-in zoom-in duration-500">
               <div className="relative inline-block group">
-                <div className="w-64 h-64 mx-auto rounded-full border-4 border-amber-500 p-2 overflow-hidden bg-red-900 shadow-[0_0_30px_rgba(245,158,11,0.3)] group-hover:shadow-[0_0_50px_rgba(245,158,11,0.5)] transition-all duration-500">
-                  <div className="w-full h-full rounded-full border-2 border-dashed border-amber-300 flex items-center justify-center bg-gradient-to-br from-red-900 to-red-950">
-                    <span className="text-7xl animate-float filter drop-shadow-lg">🐎</span>
+                <div className="absolute -inset-4 rounded-full border border-amber-500/20 animate-pulse"></div>
+                <div className="absolute -inset-8 rounded-full border border-pink-400/10"></div>
+                
+                <div className="w-64 h-64 mx-auto rounded-full border-4 border-amber-500 p-2 overflow-hidden bg-gradient-to-br from-red-900 to-red-950 shadow-[0_0_40px_rgba(245,158,11,0.3)] group-hover:shadow-[0_0_60px_rgba(245,158,11,0.5)] transition-all duration-500">
+                  <div className="w-full h-full rounded-full border-2 border-dashed border-amber-300/50 flex items-center justify-center bg-gradient-to-br from-red-800/50 to-red-950 relative">
+                    <span className="absolute top-4 left-6 text-xl opacity-50 animate-float" style={{ animationDelay: '0.2s' }}>🌸</span>
+                    <span className="absolute top-6 right-8 text-lg opacity-40 animate-float" style={{ animationDelay: '0.8s' }}>🌸</span>
+                    <span className="absolute bottom-8 left-8 text-lg opacity-40 animate-float" style={{ animationDelay: '1.2s' }}>✨</span>
+                    <span className="absolute bottom-6 right-6 text-xl opacity-50 animate-float" style={{ animationDelay: '0.5s' }}>🌸</span>
+                    
+                    <span className="text-8xl animate-float filter drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">🐎</span>
                   </div>
                 </div>
-                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-amber-500 text-red-900 px-6 py-1 rounded-full font-bold whitespace-nowrap shadow-lg">
-                  AI PHOTOBOOTH
+                
+                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-red-900 px-6 py-1.5 rounded-full font-bold whitespace-nowrap shadow-lg">
+                  <span className="relative z-10 flex items-center gap-2">
+                    <Sparkles size={16} />
+                    AI PHOTOBOOTH
+                  </span>
                 </div>
               </div>
               
-              <div className="space-y-4 pt-4">
-                {/* NÚT CHỤP ẢNH MỚI: Mở Camera Modal */}
+              <p className="text-amber-200/70 text-sm italic">
+                "Biến khoảnh khắc thành nghệ thuật cùng FPT"
+              </p>
+              
+              <div className="space-y-4 pt-2">
                 <button 
                   onClick={() => setIsCameraOpen(true)}
-                  className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-red-950 rounded-2xl font-bold text-xl shadow-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95"
+                  className="w-full py-4 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-red-950 rounded-2xl font-bold text-xl shadow-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95"
                 >
+                  <span className="relative z-10 flex items-center gap-3">
                     <Camera size={24} /> CHỤP NGAY
+                  </span>
                 </button>
 
-                {/* NÚT UPLOAD ẢNH: Gọi input file thường */}
                 <button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-4 bg-red-900/50 hover:bg-red-800 border-2 border-amber-600/50 text-amber-100 rounded-2xl font-bold text-xl transition-all active:scale-95 shadow-lg flex items-center justify-center gap-3"
+                  className="w-full py-4 bg-red-900/60 hover:bg-red-800/80 border-2 border-amber-500/40 hover:border-amber-500/70 text-amber-100 rounded-2xl font-bold text-xl transition-all shadow-lg flex items-center justify-center gap-3 backdrop-blur-sm"
                 >
                   <Upload size={24} /> TẢI ẢNH LÊN
                 </button>
                 
                 <button 
                   onClick={() => setStep('gallery')}
-                  className="w-full py-3 text-amber-400/80 hover:text-amber-300 font-semibold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full py-3 text-amber-400/80 hover:text-amber-300 font-semibold flex items-center justify-center gap-2 transition-all hover:bg-white/5 rounded-xl"
                 >
-                  <ImageIcon size={20} /> Bộ sưu tập
+                  <ImageIcon size={20} /> Bộ sưu tập ({gallery.length})
                 </button>
               </div>
               
@@ -247,87 +267,107 @@ const App = () => {
             </div>
           )}
 
-          {/* 2. PROCESSING SCREEN (Màn hình chờ) */}
+          {/* 2. PROCESSING SCREEN */}
           {step === 'processing' && (
             <div className="text-center space-y-8 flex flex-col items-center animate-in fade-in">
-              <div className="relative w-64 h-64">
-                {/* Vòng xoay Loading */}
-                <div className="absolute inset-0 border-4 border-amber-500 rounded-3xl animate-spin [animation-duration:3s]"></div>
+              <div className="relative w-72 h-72">
+                <div className="absolute inset-0 border-4 border-amber-500/80 rounded-3xl animate-spin [animation-duration:3s]"></div>
+                <div className="absolute inset-2 border-2 border-pink-400/40 rounded-2xl animate-spin [animation-duration:5s] [animation-direction:reverse]"></div>
+                <div className="absolute inset-4 border border-amber-300/30 rounded-xl animate-spin [animation-duration:7s]"></div>
                 
-                {/* Ảnh Preview mờ */}
-                <div className="absolute inset-3 rounded-2xl overflow-hidden bg-red-900 flex items-center justify-center">
+                <div className="absolute inset-6 rounded-xl overflow-hidden bg-gradient-to-br from-red-900 to-red-950 flex items-center justify-center border border-amber-500/20">
                   {capturedImage && (
-                    <img src={capturedImage} alt="Preview" className="w-full h-full object-cover opacity-50 grayscale blur-sm" />
+                    <img src={capturedImage} alt="Preview" className="w-full h-full object-cover opacity-40 grayscale blur-sm" />
                   )}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <Sparkles size={48} className="text-amber-400 animate-pulse" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <div className="relative">
+                      <Sparkles size={56} className="text-amber-400 animate-pulse" />
+                      <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-xl animate-pulse"></div>
+                    </div>
                   </div>
                 </div>
+                
+                <span className="absolute top-2 left-1/4 text-xl animate-float opacity-60">🌸</span>
+                <span className="absolute top-1/4 right-2 text-lg animate-float opacity-50" style={{ animationDelay: '1s' }}>✨</span>
+                <span className="absolute bottom-2 right-1/4 text-xl animate-float opacity-60" style={{ animationDelay: '0.5s' }}>🌸</span>
+                <span className="absolute bottom-1/4 left-2 text-lg animate-float opacity-50" style={{ animationDelay: '1.5s' }}>✨</span>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <h3 className="text-2xl font-bold text-amber-400 animate-pulse">AI Đang Hóa Mã...</h3>
-                <p className="text-amber-200/70">Đang vẽ tranh thủy mặc từ ảnh của bạn</p>
-                <div className="flex justify-center gap-2 mt-4">
-                  <div className="w-3 h-3 bg-amber-500 rounded-full animate-bounce [animation-delay:0ms]"></div>
-                  <div className="w-3 h-3 bg-amber-500 rounded-full animate-bounce [animation-delay:150ms]"></div>
-                  <div className="w-3 h-3 bg-amber-500 rounded-full animate-bounce [animation-delay:300ms]"></div>
+                <p className="text-amber-200/70 text-sm">Đang vẽ tranh thủy mặc từ ảnh của bạn</p>
+                <div className="flex justify-center gap-3 mt-4">
+                  <div className="w-3 h-3 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-bounce [animation-delay:0ms] shadow-lg"></div>
+                  <div className="w-3 h-3 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-bounce [animation-delay:150ms] shadow-lg"></div>
+                  <div className="w-3 h-3 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-bounce [animation-delay:300ms] shadow-lg"></div>
                 </div>
+                <p className="text-pink-300/50 text-xs mt-2 flex items-center justify-center gap-1">
+                  <Heart size={12} /> Vui lòng chờ trong giây lát
+                </p>
               </div>
             </div>
           )}
 
-          {/* 3. RESULT SCREEN (Kết quả) */}
+          {/* 3. RESULT SCREEN */}
           {step === 'result' && (
             <div className="space-y-6 animate-in zoom-in duration-500 pb-10">
-              {/* Khung ảnh kết quả */}
-              <div className="relative aspect-square rounded-xl overflow-hidden border-[6px] border-amber-600 bg-amber-100 shadow-2xl">
+              <div className="text-center">
+                <p className="text-pink-300 text-sm flex items-center justify-center gap-2">
+                  <span>🌸</span> Tác phẩm của bạn <span>🌸</span>
+                </p>
+              </div>
+              
+              <div className="relative aspect-[9/16] rounded-2xl overflow-hidden border-[6px] border-amber-500 bg-amber-100 shadow-[0_0_40px_rgba(245,158,11,0.3)]">
+                <div className="absolute -top-3 -left-3 text-3xl z-10 drop-shadow-lg animate-float">🌸</div>
+                <div className="absolute -top-3 -right-3 text-3xl z-10 drop-shadow-lg animate-float" style={{ animationDelay: '0.5s' }}>🌸</div>
+                <div className="absolute -bottom-3 -left-3 text-2xl z-10 drop-shadow-lg animate-float" style={{ animationDelay: '1s' }}>🌸</div>
+                <div className="absolute -bottom-3 -right-3 text-2xl z-10 drop-shadow-lg animate-float" style={{ animationDelay: '1.5s' }}>🌸</div>
+                
                 {aiImage && (
                   <img src={aiImage} alt="AI Result" className="w-full h-full object-cover" />
                 )}
                 
-                {/* Tem Watermark */}
-                <div className="absolute top-3 right-3 bg-red-800/90 text-amber-100 text-[10px] py-3 px-1.5 writing-mode-vertical border border-amber-500/50 font-serif shadow-md">
-                  Thiên Mã 2026
+                <div className="absolute top-3 right-3 bg-gradient-to-b from-red-800/95 to-red-900/95 text-amber-100 text-[10px] py-4 px-2 writing-mode-vertical border border-amber-500/50 font-serif shadow-lg rounded-sm">
+                  <span className="text-amber-400">✦</span> Thiên Mã 2026 <span className="text-amber-400">✦</span>
                 </div>
               </div>
 
-              {/* QR Code */}
               {qrCode && (
-                <div className="bg-red-900/40 backdrop-blur-md rounded-xl p-4 border border-amber-500/20 flex items-center gap-4">
-                  <div className="bg-white p-2 rounded-lg shrink-0">
+                <div className="bg-gradient-to-r from-red-900/60 to-red-800/60 backdrop-blur-md rounded-2xl p-4 border border-amber-500/30 flex items-center gap-4 shadow-lg">
+                  <div className="bg-white p-2.5 rounded-xl shrink-0 shadow-inner">
                     <img src={qrCode} alt="QR Code" className="w-24 h-24" />
                   </div>
                   <div className="text-left">
-                    <p className="text-amber-300 font-bold mb-1">Tải ảnh chất lượng cao</p>
-                    <p className="text-xs text-amber-100/70">Quét mã QR để lưu ảnh về điện thoại của bạn.</p>
+                    <p className="text-amber-300 font-bold mb-1 flex items-center gap-2">
+                      <Download size={16} /> Tải ảnh HD
+                    </p>
+                    <p className="text-xs text-amber-100/70 leading-relaxed">Quét mã QR để lưu ảnh chất lượng cao về điện thoại.</p>
                   </div>
                 </div>
               )}
 
-              {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-4">
                 <button 
                   onClick={downloadImage}
-                  className="py-3 bg-amber-500 text-red-950 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-amber-400 transition-colors shadow-lg"
+                  className="py-3.5 bg-gradient-to-r from-amber-500 to-amber-400 text-red-950 rounded-xl font-bold flex items-center justify-center gap-2 hover:from-amber-400 hover:to-amber-300 transition-all shadow-lg"
                 >
                   <Download size={20} /> TẢI VỀ
                 </button>
                 <button 
                   onClick={shareImage}
-                  className="py-3 bg-white/10 border border-amber-500/50 text-amber-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white/20 transition-colors"
+                  className="py-3.5 bg-white/10 border-2 border-amber-500/50 text-amber-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white/20 hover:border-amber-500 transition-all"
                 >
                   <Share2 size={20} /> CHIA SẺ
                 </button>
               </div>
               
-              <button onClick={reset} className="w-full py-2 text-amber-200/60 hover:text-amber-200 underline text-sm">
-                Chụp tấm khác
+              <button onClick={reset} className="w-full py-3 text-amber-200/60 hover:text-amber-200 transition-colors flex items-center justify-center gap-2 hover:bg-white/5 rounded-xl">
+                <Camera size={16} /> Chụp tấm khác
               </button>
             </div>
           )}
 
-          {/* 4. GALLERY SCREEN (Thư viện) */}
+          {/* 4. GALLERY SCREEN */}
           {step === 'gallery' && (
             <div className="flex flex-col h-[80vh] animate-in slide-in-from-right duration-500">
               <div className="flex justify-between items-center mb-6 border-b border-amber-500/30 pb-4">
@@ -371,13 +411,17 @@ const App = () => {
         </main>
         
         {/* Footer */}
-        <footer className="mt-4 pt-4 border-t border-amber-500/10 text-center relative z-10">
-          <p className="text-[10px] text-amber-200/30 uppercase tracking-[0.3em]">
-            © 2026 AI Photobooth Experience
-          </p>
+        <footer className="mt-4 pt-4 border-t border-amber-500/20 text-center relative z-10">
+          <div className="flex items-center justify-center gap-2 text-amber-200/40">
+            <span className="text-pink-300/50">🌸</span>
+            <p className="text-[10px] uppercase tracking-[0.2em]">
+              © 2026 AI Photobooth Experience
+            </p>
+            <span className="text-pink-300/50">🌸</span>
+          </div>
         </footer>
 
-        {/* Floating Mobile Action Bar (Hiện khi KHÔNG ở trang Home) */}
+        {/* Floating Mobile Action Bar */}
         {step !== 'home' && (
           <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-black/40 backdrop-blur-md p-2 rounded-full shadow-lg">
             <button
@@ -388,7 +432,6 @@ const App = () => {
               <ImageIcon size={20} />
             </button>
 
-            {/* Nút chụp nhanh trên thanh Floating mở Camera Modal */}
             <button
               onClick={() => setIsCameraOpen(true)}
               className="w-16 h-16 flex items-center justify-center rounded-full bg-amber-500 text-red-950 shadow-xl border-4 border-amber-200/40 active:scale-95"

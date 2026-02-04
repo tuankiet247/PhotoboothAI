@@ -5,6 +5,13 @@
 @layer base {
   body {
     @apply font-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  * {
+    font-feature-settings: "kern" 1;
+    text-rendering: optimizeLegibility;
   }
 }
 
@@ -88,4 +95,292 @@
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #f59e0b;
   border-radius: 10px;
+}
+
+/* ====== HIỆU ỨNG HOA ĐÀO RƠI ====== */
+
+/* Animation rơi chính */
+@keyframes petalFall {
+  0% {
+    transform: translateY(-10px) translateX(0) rotate(var(--rotate-start, 0deg));
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) translateX(var(--sway-amount, 50px)) rotate(calc(var(--rotate-start, 0deg) + 720deg));
+    opacity: 0;
+  }
+}
+
+/* Animation lắc lư */
+@keyframes petalSway {
+  0%, 100% {
+    transform: translateX(0) rotateY(0deg);
+  }
+  25% {
+    transform: translateX(calc(var(--sway-amount, 30px) * 0.5)) rotateY(45deg);
+  }
+  50% {
+    transform: translateX(calc(var(--sway-amount, 30px) * -0.3)) rotateY(0deg);
+  }
+  75% {
+    transform: translateX(calc(var(--sway-amount, 30px) * 0.7)) rotateY(-45deg);
+  }
+}
+
+/* Animation xoay chậm */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animation cho hoa đặc biệt */
+@keyframes specialPetalFall {
+  0% {
+    transform: translateY(-50px) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(50vh) rotate(180deg) scale(1.1);
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(105vh) rotate(360deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Animation pulse glow */
+@keyframes pulseGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(251, 207, 232, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(251, 207, 232, 0.9));
+  }
+}
+
+/* Animation float nhẹ nhàng */
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(-1deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+/* Animation shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Classes cho petals */
+.petal {
+  animation: petalFall linear infinite;
+  will-change: transform, opacity;
+}
+
+.petal-svg {
+  animation: petalSway ease-in-out infinite;
+  animation-duration: 3s;
+}
+
+.petal-special {
+  animation: specialPetalFall linear infinite;
+  will-change: transform, opacity;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 8s linear infinite;
+}
+
+.animate-float {
+  animation: gentleFloat 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Shimmer effect cho button */
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ====== HIỆU ỨNG NỀN ====== */
+
+/* Gradient động cho background */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animated-gradient {
+  background: linear-gradient(
+    -45deg,
+    #7f1d1d,
+    #991b1b,
+    #7f1d1d,
+    #450a0a
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Hiệu ứng glow cho vòng tròn trang trí */
+@keyframes ringPulse {
+  0%, 100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.02);
+  }
+}
+
+.ring-glow {
+  animation: ringPulse 4s ease-in-out infinite;
+}
+
+/* ====== HIỆU ỨNG CHO CÁC ELEMENT ====== */
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(245, 158, 11, 0.2);
+}
+
+/* Button press effect */
+.btn-press {
+  transition: all 0.15s ease;
+}
+
+.btn-press:active {
+  transform: scale(0.96);
+}
+
+/* Text glow */
+.text-glow {
+  text-shadow: 
+    0 0 10px rgba(251, 191, 36, 0.5),
+    0 0 20px rgba(251, 191, 36, 0.3),
+    0 0 30px rgba(251, 191, 36, 0.2);
+}
+
+/* Border glow animation */
+@keyframes borderGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.3),
+                0 0 10px rgba(245, 158, 11, 0.2),
+                0 0 15px rgba(245, 158, 11, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5),
+                0 0 20px rgba(245, 158, 11, 0.3),
+                0 0 30px rgba(245, 158, 11, 0.2);
+  }
+}
+
+.border-glow {
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+/* ====== FIREWORKS ANIMATIONS ====== */
+
+@keyframes fireworkExplosion {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--final-x), var(--final-y)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+.firework-particle {
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+/* ====== RESPONSIVE ADJUSTMENTS ====== */
+
+@media (prefers-reduced-motion: reduce) {
+  .petal,
+  .petal-special,
+  .petal-svg {
+    animation: none;
+  }
+  
+  .animated-gradient {
+    animation: none;
+  }
+  
+  .firework-particle {
+    animation: none;
+  }
 }

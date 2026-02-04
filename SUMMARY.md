@@ -43,7 +43,7 @@
 ### Backend
 - **Language**: Python 3.8+
 - **Framework**: FastAPI
-- **AI**: OpenRouter API (Claude 3.5 Sonnet)
+- **AI**: OpenRouter API
 - **Image**: Pillow
 - **QR Code**: python-qrcode
 

@@ -9,20 +9,112 @@ from app.config import settings
 import traceback
 
 class AIService:
+    # Hardcoded system prompt
+    SYSTEM_PROMPT = """🎨 TẾT PHOTOBOOTH COMPOSITE - THIÊN MÃ NGHINH XUÂN 2026
+
+📥 INPUT FILES:
+1. mascot.png - Golden mechanical horse mascot "Thiên Mã" (LOAD FIRST)
+2. Logo.png - FPT/Brand logo (LOAD SECOND)
+3. Person Photo - Real camera photograph of the subject (COMPOSITE LAST)
+
+═══════════════════════════════════════════════════════════
+🔄 WORKFLOW ORDER (FOLLOW THIS SEQUENCE):
+═══════════════════════════════════════════════════════════
+
+📌 STEP 1: LOAD MASCOT (mascot.png)
+- Open and load mascot.png file FIRST
+- This is a golden mechanical "Thiên Mã" horse with circuit board patterns
+- PRESERVE 100% ORIGINAL DESIGN - no modifications allowed
+- Keep ready for compositing
+
+📌 STEP 2: LOAD LOGO (Logo.png)  
+- Open and load Logo.png file
+- Keep original design intact
+- Will be placed in top-left corner
+
+📌 STEP 3: CREATE BACKGROUND
+- Create illustrated Tết background:
+  + Gradient: Deep red → warm orange-gold
+  + Gold circuit board patterns (tech style)
+  + Soft golden bokeh lights
+  + Traditional Vietnamese border (hồi văn) at top
+  + 3 red lanterns hanging from top-right
+  + Câu đối (red banners) on left side with text: "Chúc", "Mừng", "Sức", "Như", "Nắng"
+  + Yellow Hoa Mai branches at bottom
+  + Pink Hoa Đào branches at corners
+  + Red table with mâm ngũ quả and gold ingots on right
+
+📌 STEP 4: PLACE MASCOT INTO BACKGROUND
+- PASTE mascot.png (loaded in Step 1) into the RIGHT side of background
+- Position: behind where the person will be placed
+- Scale proportionally to fit scene
+- ⚠️ DO NOT REDRAW - just paste the original mascot image
+
+📌 STEP 5: PLACE LOGO INTO BACKGROUND
+- PASTE Logo.png (loaded in Step 2) into TOP-LEFT corner
+- Scale appropriately, keep visible
+- ⚠️ DO NOT REDRAW - just paste the original logo
+
+📌 STEP 6: COMPOSITE PERSON (LAST STEP)
+- Place the person into the scene - MAIN SUBJECT
+- 🎨 AUTO-LAYOUT: AI decides the best position for the person:
+  + Can be center, left, right, or any position that looks natural
+  + Consider balance with mascot and other elements
+  + Create harmonious composition - person and mascot together
+  + Ensure person is visible and prominent (but doesn't have to be center)
+- FACE: Preserve 100% identical to input photo
+- POSE: Auto-adjust if needed to fit the Tết scene:
+  + If pose doesn't fit → create natural sitting/standing pose
+  + Options: sitting on red platform, chúc Tết pose, relaxed pose, interacting with mascot
+  + If bust shot only → generate full body with Tết pose
+- Blend person naturally with lighting/shadows
+
+═══════════════════════════════════════════════════════════
+
+⚠️ CRITICAL RULES:
+
+🎭 FACE PRESERVATION:
+- Face MUST remain 100% IDENTICAL to input
+- NO alterations to facial features, skin texture, expression
+- Only body pose can change, NEVER the face
+
+🐴 MASCOT PRESERVATION:
+- ❗ COPY EXACT PIXELS from mascot.png - NO MODIFICATIONS
+- ❗ DO NOT redraw, regenerate, or alter the mascot
+- ❗ Just PASTE the original file into the scene
+- ❗ Only allowed change: SCALE (resize proportionally)
+
+🏷️ LOGO PRESERVATION:
+- Copy exact pixels from Logo.png
+- Just paste, don't redraw
+
+🌸 FLOWERS (ONLY THESE):
+- Hoa Mai: Yellow/gold, 5-petal - BOTTOM
+- Hoa Đào: Pink - CORNERS
+- ❌ NO chrysanthemums, daisies, sunflowers
+
+🚫 FORBIDDEN:
+- Redrawing/regenerating mascot
+- Altering person's face
+- Missing logo
+- Wrong flower types
+- Mascot blocking the person
+
+✅ FINAL OUTPUT:
+- Illustrated Tết background
+- Mascot (original mascot.png) placed in scene
+- Logo (original Logo.png) visible
+- Person composited with AUTO-LAYOUT (best position decided by AI)
+- Harmonious composition with all elements balanced
+- Festive Thiên Mã Nghinh Xuân 2026 theme
+
+"""
+
     def __init__(self):
         self.api_key = settings.OPENROUTER_API_KEY
         self.model = settings.AI_MODEL
         self.api_url = settings.OPENROUTER_API_URL
-        self.system_prompt = self._load_system_prompt()
-    
-    def _load_system_prompt(self) -> str:
-        """Load system prompt from file"""
-        try:
-            with open(settings.SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as f:
-                return f.read().strip()
-        except Exception as e:
-            print(f"⚠️ Warning: Could not load system prompt: {e}")
-            return "Transform this photo to Vietnamese Tet theme with Ao Dai and festive background."
+        self.system_prompt = self.SYSTEM_PROMPT
     
     async def process_image_with_ai(
         self,

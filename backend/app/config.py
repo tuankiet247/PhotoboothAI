@@ -28,7 +28,7 @@ except Exception:
 class Settings:
     # API Configuration
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-    AI_MODEL: str = os.getenv("AI_MODEL", "google/gemini-3-pro-image-preview")
+    AI_MODEL: str = os.getenv("AI_MODEL", "black-forest-labs/flux.2-pro")
     OPENROUTER_API_URL: str = "https://openrouter.ai/api/v1/chat/completions"
 
     # Server Configuration
@@ -45,8 +45,10 @@ class Settings:
     # Image processing
     MAX_IMAGE_SIZE: int = 2048  # Max width/height in pixels
     COMPRESSION_QUALITY: int = 85
+    OUTPUT_ASPECT_RATIO: tuple = (9, 16)  # Tỉ lệ output (width:height) - 9:16 cho portrait
     
     # QR Code
+    ENABLE_QR_CODE: bool = os.getenv("ENABLE_QR_CODE", "false").lower() == "true"  # Tắt khi test localhost
     QR_CODE_SIZE: int = 300
     QR_CODE_BORDER: int = 2
     
