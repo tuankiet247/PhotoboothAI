@@ -47,8 +47,8 @@ class Settings:
     COMPRESSION_QUALITY: int = 85
     OUTPUT_ASPECT_RATIO: tuple = (9, 16)  # Tỉ lệ output (width:height) - 9:16 cho portrait
     
-    # QR Code
-    ENABLE_QR_CODE: bool = os.getenv("ENABLE_QR_CODE", "false").lower() == "true"  # Tắt khi test localhost
+    # QR Code - Bật mặc định khi deploy, set ENABLE_QR_CODE=false nếu muốn tắt
+    ENABLE_QR_CODE: bool = os.getenv("ENABLE_QR_CODE", "true").lower() == "true"
     QR_CODE_SIZE: int = 300
     QR_CODE_BORDER: int = 2
     

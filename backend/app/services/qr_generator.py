@@ -34,11 +34,18 @@ class QRCodeGenerator:
         image_id: str,
         base_url: str,
         size: int = 300,
-        border: int = 2
+        border: int = 2,
+        output_path: str = None
     ) -> Image.Image:
         """Generate QR code for downloading an image"""
         download_url = f"{base_url}/api/download/{image_id}"
-        return QRCodeGenerator.generate_qr_code(download_url, size, border)
+        qr_image = QRCodeGenerator.generate_qr_code(download_url, size, border)
+        
+        # Save to file if output_path provided
+        if output_path:
+            qr_image.save(output_path, format='PNG')
+        
+        return qr_image
     
     @staticmethod
     def qr_to_bytes(qr_image: Image.Image) -> bytes:
