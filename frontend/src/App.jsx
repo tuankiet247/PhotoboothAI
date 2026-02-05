@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Download, Share2, Sparkles, Image as ImageIcon, X, Upload, Heart } from 'lucide-react';
+import { Camera, Download, Share2, Sparkles, Image as ImageIcon, X, Upload, Heart, ArrowRight, Zap, RefreshCcw, Stars, MessageSquareQuote, AlertCircle } from 'lucide-react';
 
 // --- Components ---
 import CameraModal from './components/CameraModal';
 import PetalsFalling from './components/PetalsFalling';
 import Fireworks from './components/Fireworks';
 
-// --- GIẢ ĐỊNH API IMPORT (Giữ nguyên như file cũ của bạn) ---
+// --- API IMPORT ---
 import { uploadImage, getProcessedImage, getQRCode, getDownloadUrl, getGallery } from './api';
 
 const App = () => {
   // --- STATE ---
-  const [step, setStep] = useState('home'); // Các bước: home, processing, result, gallery
+  const [step, setStep] = useState('landing'); // Các bước: landing, capture, processing, result, gallery
   
   // Dữ liệu ảnh
   const [capturedImage, setCapturedImage] = useState(null); // Ảnh gốc (preview)
@@ -26,6 +26,9 @@ const App = () => {
   
   // Trạng thái Camera Modal
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  
+  // Confetti animation
+  const [showConfetti, setShowConfetti] = useState(false);
   
   // --- REFS ---
   // Ref cho input upload ảnh từ thư viện
@@ -49,34 +52,29 @@ const App = () => {
     }
   };
 
-  // --- XỬ LÝ FILE & CAMERA (LOGIC MỚI) ---
+  // --- XỬ LÝ FILE & CAMERA ---
 
   // Hàm chung xử lý khi người dùng chọn ảnh (từ Camera hoặc Thư viện)
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     
-    // Nếu người dùng cancel (không chụp/không chọn) thì thôi
     if (!file) return;
 
-    // Kiểm tra định dạng ảnh
     if (!file.type.startsWith('image/')) {
       setError('Vui lòng chọn file ảnh hợp lệ (JPG, PNG)');
       return;
     }
 
-    // Bắt đầu xử lý
     processImage(file);
-
-    // Reset giá trị input để lần sau chọn lại file cũ vẫn trigger sự kiện change
     event.target.value = null; 
   };
 
   const processImage = async (file) => {
     setIsLoading(true);
-    setStep('processing'); // Chuyển ngay sang màn hình chờ
+    setStep('processing');
     setError(null);
 
-    // 1. Tạo ảnh preview (để hiện mờ mờ trong lúc chờ)
+    // 1. Tạo ảnh preview
     const reader = new FileReader();
     reader.onload = (e) => setCapturedImage(e.target.result);
     reader.readAsDataURL(file);
@@ -93,14 +91,16 @@ const App = () => {
         
         // 4. Chuyển sang màn hình kết quả
         setStep('result');
-        loadGallery(); // Cập nhật lại thư viện ngầm
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
+        loadGallery();
       } else {
         throw new Error('Processing failed');
       }
     } catch (err) {
       console.error('Error processing:', err);
       setError('Có lỗi khi xử lý ảnh. Server có thể đang bận, vui lòng thử lại.');
-      setStep('home');
+      setStep('landing');
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +113,8 @@ const App = () => {
     setQrCode(null);
     setDownloadUrl(null);
     setError(null);
-    setStep('home');
+    setShowConfetti(false);
+    setStep('landing');
   };
 
   // Tải ảnh
@@ -138,125 +139,137 @@ const App = () => {
     }
   };
 
-  // --- RENDER HELPERS ---
-
-
-
-  // Hiệu ứng thông báo lỗi
-  const renderError = () => {
-    if (!error) return null;
-    return (
-      <div className="mb-4 p-4 bg-red-800 border border-red-600 rounded-lg text-amber-100 text-sm flex items-center gap-3 animate-in fade-in">
-        <X className="shrink-0" />
-        {error}
-      </div>
-    );
-  };
+  // Handle start button
+  const handleStart = () => setIsCameraOpen(true);
 
   // --- MAIN RENDER ---
 
   return (
-    <div className="min-h-screen animated-gradient text-amber-50 font-serif overflow-hidden relative selection:bg-amber-500">
-      {/* Background Decor với hiệu ứng glow */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-20 -left-20 w-96 h-96 border-[40px] border-amber-500/20 rounded-full ring-glow"></div>
-        <div className="absolute -bottom-20 -right-20 w-96 h-96 border-[40px] border-amber-500/20 rounded-full ring-glow" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/4 right-10 w-32 h-32 border-[15px] border-pink-400/10 rounded-full ring-glow" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-1/3 left-5 w-24 h-24 border-[10px] border-amber-400/10 rounded-full ring-glow" style={{ animationDelay: '3s' }}></div>
-      </div>
+    <div className="min-h-screen bg-[#F0F0F0] text-black font-sans overflow-hidden flex flex-col items-center justify-center p-4 relative selection:bg-[#CCFF00]">
       
-      {/* Hiệu ứng hoa đào rơi - Nhiều hơn */}
-      <PetalsFalling count={60} />
+      {/* --- NEO-BRUTALISM BACKGROUND --- */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 opacity-20" 
+             style={{ backgroundImage: 'linear-gradient(#000 2px, transparent 2px), linear-gradient(90deg, #000 2px, transparent 2px)', backgroundSize: '40px 40px' }}>
+        </div>
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#FF00FF] rounded-full blur-[120px] opacity-20 animate-blob"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-[#00FFFF] rounded-full blur-[100px] opacity-20 animate-blob animation-delay-2000"></div>
+      </div>
+
+      {/* Hiệu ứng hoa đào rơi */}
+      <PetalsFalling count={40} />
       
       {/* Hiệu ứng pháo hoa */}
-      <Fireworks show={step === 'home' || step === 'result'} intensity={step === 'result' ? 'high' : 'medium'} />
+      <Fireworks show={step === 'landing' || step === 'result'} intensity={step === 'result' ? 'high' : 'medium'} />
 
-      <div className="max-w-md mx-auto w-full min-h-screen flex flex-col p-4 sm:p-6 relative z-10">
+      {/* --- CONFETTI --- */}
+      {showConfetti && (
+        <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+          {[...Array(40)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute animate-confetti border border-black"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `-20px`,
+                backgroundColor: ['#CCFF00', '#FF00FF', '#00FFFF', '#FFFF00', '#FFD700'][Math.floor(Math.random() * 5)],
+                width: `${Math.random() * 15 + 5}px`,
+                height: `${Math.random() * 15 + 5}px`,
+                animationDuration: `${Math.random() * 2 + 1.5}s`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                transform: `rotate(${Math.random() * 360}deg)`,
+                boxShadow: '2px 2px 0px black'
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* --- MAIN CARD --- */}
+      <div className="w-full max-w-[400px] bg-white border-[3px] border-black rounded-[40px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden relative z-10 min-h-[85vh] flex flex-col transition-all duration-300 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         
-        {/* Header */}
-        <header className="text-center mb-8 relative">
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-60">
-            <span className="text-2xl animate-float" style={{ animationDelay: '0s' }}>🌸</span>
-            <span className="text-lg animate-float" style={{ animationDelay: '0.5s' }}>✨</span>
-            <span className="text-2xl animate-float" style={{ animationDelay: '1s' }}>🌸</span>
-          </div>
-          
-          <h1 className="text-5xl font-bold tracking-widest text-amber-400 drop-shadow-lg mt-6">
-            THIÊN MÃ
-          </h1>
-          <h2 className="text-xl tracking-[0.3em] text-amber-200/90 uppercase mt-1 flex items-center justify-center gap-3">
-            <span className="text-pink-300">❀</span>
-            Nghinh Xuân 2026
-            <span className="text-pink-300">❀</span>
-          </h2>
-          <div className="h-1 w-32 bg-gradient-to-r from-transparent via-amber-500 to-transparent mx-auto mt-3 rounded-full"></div>
-          <p className="text-xs text-amber-200/50 mt-2 tracking-wider">✦ AI Photobooth ✦</p>
-        </header>
+        {/* --- MARQUEE HEADER --- */}
+        <div className="absolute top-6 left-0 right-0 z-50 pointer-events-none flex justify-between items-center px-6">
+           <div className="bg-[#CCFF00] border-2 border-black px-3 py-1 rounded-full shadow-[2px_2px_0px_black] transform -rotate-3">
+              <span className="text-xs font-black uppercase tracking-wider">Thiên Mã 2026</span>
+           </div>
+           <div className="w-10 h-10 bg-white border-2 border-black rounded-full flex items-center justify-center shadow-[2px_2px_0px_black] animate-spin-slow">
+              <Stars className="w-5 h-5 text-black" />
+           </div>
+        </div>
 
-        {/* Error Area */}
-        {renderError()}
-
-        {/* Main Content */}
-        <main className="flex-grow flex flex-col justify-center">
+        <div className="flex-1 flex flex-col relative w-full h-full">
           
-          {/* 1. HOME SCREEN */}
-          {step === 'home' && (
-            <div className="space-y-8 text-center animate-in fade-in zoom-in duration-500">
-              <div className="relative inline-block group">
-                <div className="absolute -inset-4 rounded-full border border-amber-500/20 animate-pulse"></div>
-                <div className="absolute -inset-8 rounded-full border border-pink-400/10"></div>
-                
-                <div className="w-64 h-64 mx-auto rounded-full border-4 border-amber-500 p-2 overflow-hidden bg-gradient-to-br from-red-900 to-red-950 shadow-[0_0_40px_rgba(245,158,11,0.3)] group-hover:shadow-[0_0_60px_rgba(245,158,11,0.5)] transition-all duration-500">
-                  <div className="w-full h-full rounded-full border-2 border-dashed border-amber-300/50 flex items-center justify-center bg-gradient-to-br from-red-800/50 to-red-950 relative">
-                    <span className="absolute top-4 left-6 text-xl opacity-50 animate-float" style={{ animationDelay: '0.2s' }}>🌸</span>
-                    <span className="absolute top-6 right-8 text-lg opacity-40 animate-float" style={{ animationDelay: '0.8s' }}>🌸</span>
-                    <span className="absolute bottom-8 left-8 text-lg opacity-40 animate-float" style={{ animationDelay: '1.2s' }}>✨</span>
-                    <span className="absolute bottom-6 right-6 text-xl opacity-50 animate-float" style={{ animationDelay: '0.5s' }}>🌸</span>
-                    
-                    <span className="text-8xl animate-float filter drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">🐎</span>
-                  </div>
+          {/* === STEP 1: LANDING === */}
+          {step === 'landing' && (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-8 animate-in fade-in zoom-in duration-500">
+              
+              {/* Error Display */}
+              {error && (
+                <div className="w-full bg-red-100 border-2 border-red-500 rounded-xl p-3 flex items-center gap-2 shadow-[3px_3px_0px_black]">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                  <span className="text-xs font-bold text-red-700">{error}</span>
+                  <button onClick={() => setError(null)} className="ml-auto">
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-                
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-red-900 px-6 py-1.5 rounded-full font-bold whitespace-nowrap shadow-lg">
-                  <span className="relative z-10 flex items-center gap-2">
-                    <Sparkles size={16} />
-                    AI PHOTOBOOTH
-                  </span>
+              )}
+              
+              <div className="relative group cursor-pointer mt-8" onClick={handleStart}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-64 h-64 bg-[#FF00FF] rotate-45 rounded-[40px] opacity-20 group-hover:rotate-90 transition-transform duration-700"></div>
+                </div>
+                <div className="w-56 h-56 relative bg-white border-[4px] border-black rounded-full flex items-center justify-center shadow-[6px_6px_0px_black] z-10 overflow-hidden group-hover:scale-105 transition-transform">
+                   <div className="absolute top-8 right-6 transform rotate-12 z-20">
+                      <div className="bg-[#00FFFF] border-2 border-black px-2 py-0.5 rounded shadow-[2px_2px_0px_black]">
+                        <span className="text-[10px] font-black">#AI_MAGIC</span>
+                      </div>
+                   </div>
+                   <span className="text-[90px] transform group-hover:-rotate-12 transition-transform duration-300 drop-shadow-lg">🐎</span>
+                   <Zap className="absolute bottom-10 left-8 w-6 h-6 text-[#FFD700] fill-[#FFD700] animate-bounce" />
+                   <Sparkles className="absolute top-16 left-6 w-5 h-5 text-[#FF00FF] animate-pulse" />
                 </div>
               </div>
-              
-              <p className="text-amber-200/70 text-sm italic">
-                "Biến khoảnh khắc thành nghệ thuật cùng FPT"
-              </p>
-              
-              <div className="space-y-4 pt-2">
+
+              <div className="space-y-2 relative z-10">
+                <h1 className="text-5xl font-black italic tracking-tighter leading-[0.85]">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF00FF] to-[#00FFFF]" style={{ WebkitTextStroke: '1.5px black' }}>NGHINH</span> <br/>
+                  <span className="text-black drop-shadow-[2px_2px_0px_#CCFF00]">XUÂN</span>
+                </h1>
+                <div className="inline-block bg-black text-white px-4 py-1.5 rounded-full transform -rotate-2 mt-2">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em]">Powered by AI</p>
+                </div>
+              </div>
+
+              <div className="space-y-3 w-full max-w-[280px]">
                 <button 
-                  onClick={() => setIsCameraOpen(true)}
-                  className="w-full py-4 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-red-950 rounded-2xl font-bold text-xl shadow-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95"
+                  onClick={handleStart}
+                  className="w-full h-16 bg-[#CCFF00] border-[3px] border-black rounded-xl shadow-[6px_6px_0px_black] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_black] transition-all flex items-center justify-center gap-3 group"
                 >
-                  <span className="relative z-10 flex items-center gap-3">
-                    <Camera size={24} /> CHỤP NGAY
-                  </span>
+                  <Camera className="w-6 h-6" />
+                  <span className="font-black text-xl tracking-wide">CHỤP NGAY</span>
+                  <div className="bg-black text-[#CCFF00] rounded-full p-1 group-hover:rotate-45 transition-transform">
+                    <ArrowRight className="w-5 h-5" />
+                  </div>
                 </button>
 
                 <button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-4 bg-red-900/60 hover:bg-red-800/80 border-2 border-amber-500/40 hover:border-amber-500/70 text-amber-100 rounded-2xl font-bold text-xl transition-all shadow-lg flex items-center justify-center gap-3 backdrop-blur-sm"
+                  className="w-full h-14 bg-white border-[3px] border-black rounded-xl shadow-[4px_4px_0px_black] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_black] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_black] transition-all flex items-center justify-center gap-3"
                 >
-                  <Upload size={24} /> TẢI ẢNH LÊN
+                  <Upload className="w-5 h-5" />
+                  <span className="font-bold text-lg">TẢI ẢNH LÊN</span>
                 </button>
-                
+
                 <button 
                   onClick={() => setStep('gallery')}
-                  className="w-full py-3 text-amber-400/80 hover:text-amber-300 font-semibold flex items-center justify-center gap-2 transition-all hover:bg-white/5 rounded-xl"
+                  className="w-full py-3 text-black/70 hover:text-black font-semibold flex items-center justify-center gap-2 transition-all hover:bg-gray-100 rounded-xl border-2 border-transparent hover:border-black"
                 >
                   <ImageIcon size={20} /> Bộ sưu tập ({gallery.length})
                 </button>
               </div>
               
               {/* --- HIDDEN INPUT --- */}
-              
-              {/* INPUT: Dành cho nút UPLOAD (Mở thư viện ảnh) */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -267,125 +280,157 @@ const App = () => {
             </div>
           )}
 
-          {/* 2. PROCESSING SCREEN */}
+          {/* === STEP 2: PROCESSING === */}
           {step === 'processing' && (
-            <div className="text-center space-y-8 flex flex-col items-center animate-in fade-in">
-              <div className="relative w-72 h-72">
-                <div className="absolute inset-0 border-4 border-amber-500/80 rounded-3xl animate-spin [animation-duration:3s]"></div>
-                <div className="absolute inset-2 border-2 border-pink-400/40 rounded-2xl animate-spin [animation-duration:5s] [animation-direction:reverse]"></div>
-                <div className="absolute inset-4 border border-amber-300/30 rounded-xl animate-spin [animation-duration:7s]"></div>
+            <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-6 animate-in fade-in duration-500">
+              
+              <div className="relative w-64 h-80 perspective-1000">
+                {/* Card Background */}
+                <div className="absolute inset-0 bg-black rounded-[32px] translate-x-2 translate-y-2"></div>
                 
-                <div className="absolute inset-6 rounded-xl overflow-hidden bg-gradient-to-br from-red-900 to-red-950 flex items-center justify-center border border-amber-500/20">
+                <div className="relative h-full w-full rounded-[30px] overflow-hidden border-[4px] border-black bg-white flex flex-col items-center justify-center">
+                  {/* Preview Image */}
                   {capturedImage && (
-                    <img src={capturedImage} alt="Preview" className="w-full h-full object-cover opacity-40 grayscale blur-sm" />
+                    <img src={capturedImage} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-30 blur-sm" />
                   )}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <div className="relative">
-                      <Sparkles size={56} className="text-amber-400 animate-pulse" />
-                      <div className="absolute -inset-4 bg-amber-400/20 rounded-full blur-xl animate-pulse"></div>
+                  
+                  {/* Loading Overlay */}
+                  <div className="relative z-10 flex flex-col items-center gap-6">
+                    <div className="w-16 h-16 border-4 border-[#CCFF00] border-t-black rounded-full animate-spin"></div>
+                    
+                    <div className="bg-[#CCFF00] border-2 border-black px-6 py-3 rounded-xl shadow-[4px_4px_0px_black] animate-bounce">
+                      <span className="font-black text-sm uppercase">AI đang vẽ...</span>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <div className="w-3 h-3 bg-[#FF00FF] border border-black rounded-full animate-bounce"></div>
+                      <div className="w-3 h-3 bg-[#00FFFF] border border-black rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></div>
+                      <div className="w-3 h-3 bg-[#CCFF00] border border-black rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></div>
                     </div>
                   </div>
+                  
+                  {/* Decorative Elements */}
+                  <div className="absolute top-4 right-4 bg-[#FF00FF] text-white px-3 py-1 border-2 border-black rounded shadow-[2px_2px_0px_black] rotate-6">
+                    <span className="font-black text-[10px]">#THIÊN_MÃ</span>
+                  </div>
                 </div>
-                
-                <span className="absolute top-2 left-1/4 text-xl animate-float opacity-60">🌸</span>
-                <span className="absolute top-1/4 right-2 text-lg animate-float opacity-50" style={{ animationDelay: '1s' }}>✨</span>
-                <span className="absolute bottom-2 right-1/4 text-xl animate-float opacity-60" style={{ animationDelay: '0.5s' }}>🌸</span>
-                <span className="absolute bottom-1/4 left-2 text-lg animate-float opacity-50" style={{ animationDelay: '1.5s' }}>✨</span>
               </div>
 
-              <div className="space-y-3">
-                <h3 className="text-2xl font-bold text-amber-400 animate-pulse">AI Đang Hóa Mã...</h3>
-                <p className="text-amber-200/70 text-sm">Đang vẽ tranh thủy mặc từ ảnh của bạn</p>
-                <div className="flex justify-center gap-3 mt-4">
-                  <div className="w-3 h-3 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-bounce [animation-delay:0ms] shadow-lg"></div>
-                  <div className="w-3 h-3 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-bounce [animation-delay:150ms] shadow-lg"></div>
-                  <div className="w-3 h-3 bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-bounce [animation-delay:300ms] shadow-lg"></div>
-                </div>
-                <p className="text-pink-300/50 text-xs mt-2 flex items-center justify-center gap-1">
-                  <Heart size={12} /> Vui lòng chờ trong giây lát
+              <div className="text-center space-y-2">
+                <h3 className="text-2xl font-black">AI Đang Hóa Mã...</h3>
+                <p className="text-sm text-black/60">Đang tạo tác phẩm nghệ thuật từ ảnh của bạn</p>
+                <p className="text-xs text-black/40 flex items-center justify-center gap-1 mt-4">
+                  <Heart size={12} className="text-[#FF00FF]" /> Vui lòng chờ trong giây lát
                 </p>
               </div>
             </div>
           )}
 
-          {/* 3. RESULT SCREEN */}
+          {/* === STEP 3: RESULT === */}
           {step === 'result' && (
-            <div className="space-y-6 animate-in zoom-in duration-500 pb-10">
-              <div className="text-center">
-                <p className="text-pink-300 text-sm flex items-center justify-center gap-2">
-                  <span>🌸</span> Tác phẩm của bạn <span>🌸</span>
-                </p>
-              </div>
-              
-              <div className="relative aspect-[9/16] rounded-2xl overflow-hidden border-[6px] border-amber-500 bg-amber-100 shadow-[0_0_40px_rgba(245,158,11,0.3)]">
-                <div className="absolute -top-3 -left-3 text-3xl z-10 drop-shadow-lg animate-float">🌸</div>
-                <div className="absolute -top-3 -right-3 text-3xl z-10 drop-shadow-lg animate-float" style={{ animationDelay: '0.5s' }}>🌸</div>
-                <div className="absolute -bottom-3 -left-3 text-2xl z-10 drop-shadow-lg animate-float" style={{ animationDelay: '1s' }}>🌸</div>
-                <div className="absolute -bottom-3 -right-3 text-2xl z-10 drop-shadow-lg animate-float" style={{ animationDelay: '1.5s' }}>🌸</div>
-                
-                {aiImage && (
-                  <img src={aiImage} alt="AI Result" className="w-full h-full object-cover" />
-                )}
-                
-                <div className="absolute top-3 right-3 bg-gradient-to-b from-red-800/95 to-red-900/95 text-amber-100 text-[10px] py-4 px-2 writing-mode-vertical border border-amber-500/50 font-serif shadow-lg rounded-sm">
-                  <span className="text-amber-400">✦</span> Thiên Mã 2026 <span className="text-amber-400">✦</span>
-                </div>
-              </div>
-
-              {qrCode && (
-                <div className="bg-gradient-to-r from-red-900/60 to-red-800/60 backdrop-blur-md rounded-2xl p-4 border border-amber-500/30 flex items-center gap-4 shadow-lg">
-                  <div className="bg-white p-2.5 rounded-xl shrink-0 shadow-inner">
-                    <img src={qrCode} alt="QR Code" className="w-24 h-24" />
+            <div className="flex-1 flex flex-col p-6 animate-in zoom-in-95 duration-500 justify-center items-center">
+               
+               {/* Result Card */}
+               <div className="relative w-full aspect-[3/4] perspective-1000 transform hover:rotate-1 transition-transform duration-500">
+                  <div className="absolute inset-0 bg-black rounded-[32px] translate-x-2 translate-y-2"></div>
+                  
+                  <div className="relative h-full w-full rounded-[30px] overflow-hidden border-[4px] border-black bg-white flex flex-col">
+                    <div className="flex-1 relative overflow-hidden border-b-[4px] border-black">
+                       {aiImage && (
+                         <img src={aiImage} alt="AI Result" className="w-full h-full object-cover" />
+                       )}
+                       
+                       <div className="absolute top-4 right-4 bg-[#FF00FF] text-white px-3 py-1 border-2 border-black rounded shadow-[3px_3px_0px_black] rotate-6 animate-pulse">
+                          <span className="font-black text-[10px]">#THIÊN_MÃ_2026</span>
+                       </div>
+                    </div>
+                    
+                    {/* Caption Area */}
+                    <div className="min-h-16 bg-white flex flex-col justify-center px-4 py-3 gap-1">
+                       <div className="flex items-center gap-2">
+                          <MessageSquareQuote className="w-4 h-4 text-[#CCFF00] fill-black" />
+                          <p className="font-black text-[10px] uppercase text-gray-400">TẾT 2026</p>
+                       </div>
+                       <p className="text-xs font-bold leading-tight">Thiên Mã Nghinh Xuân - Phúc Lộc An Khang! 🐎✨</p>
+                    </div>
                   </div>
-                  <div className="text-left">
-                    <p className="text-amber-300 font-bold mb-1 flex items-center gap-2">
-                      <Download size={16} /> Tải ảnh HD
-                    </p>
-                    <p className="text-xs text-amber-100/70 leading-relaxed">Quét mã QR để lưu ảnh chất lượng cao về điện thoại.</p>
-                  </div>
-                </div>
-              )}
+               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={downloadImage}
-                  className="py-3.5 bg-gradient-to-r from-amber-500 to-amber-400 text-red-950 rounded-xl font-bold flex items-center justify-center gap-2 hover:from-amber-400 hover:to-amber-300 transition-all shadow-lg"
-                >
-                  <Download size={20} /> TẢI VỀ
-                </button>
-                <button 
-                  onClick={shareImage}
-                  className="py-3.5 bg-white/10 border-2 border-amber-500/50 text-amber-400 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white/20 hover:border-amber-500 transition-all"
-                >
-                  <Share2 size={20} /> CHIA SẺ
-                </button>
+               {/* QR Code Section */}
+               {qrCode && (
+                 <div className="w-full mt-4 bg-white border-2 border-black rounded-xl p-3 flex items-center gap-3 shadow-[3px_3px_0px_black]">
+                   <div className="bg-white p-2 rounded-lg border-2 border-black shrink-0">
+                     <img src={qrCode} alt="QR Code" className="w-16 h-16" />
+                   </div>
+                   <div className="text-left">
+                     <p className="font-black text-sm flex items-center gap-1">
+                       <Download size={14} /> Tải ảnh HD
+                     </p>
+                     <p className="text-[10px] text-black/60">Quét mã QR để lưu ảnh chất lượng cao</p>
+                   </div>
+                 </div>
+               )}
+
+              {/* Actions */}
+              <div className="w-full mt-4 space-y-3">
+                 <button 
+                   onClick={downloadImage}
+                   className="w-full h-14 bg-[#CCFF00] text-black border-[3px] border-black rounded-xl shadow-[5px_5px_0px_black] hover:translate-y-[-2px] active:translate-y-[0] active:shadow-[2px_2px_0px_black] transition-all flex items-center justify-center gap-2 font-black"
+                 >
+                    <Download className="w-5 h-5" /> LƯU ẢNH
+                 </button>
+                 
+                 <div className="flex gap-3">
+                    <button 
+                      onClick={shareImage}
+                      className="flex-1 h-12 bg-white text-black border-[3px] border-black rounded-xl shadow-[3px_3px_0px_black] hover:bg-gray-50 active:shadow-none transition-all flex items-center justify-center gap-2 font-bold text-xs"
+                    >
+                       <Share2 className="w-4 h-4" /> SHARE
+                    </button>
+                    <button 
+                      onClick={reset} 
+                      className="flex-1 h-12 bg-white text-black border-[3px] border-black rounded-xl shadow-[3px_3px_0px_black] hover:bg-gray-50 active:shadow-none transition-all flex items-center justify-center gap-2 font-bold text-xs"
+                    >
+                       <RefreshCcw className="w-4 h-4" /> LÀM LẠI
+                    </button>
+                 </div>
               </div>
-              
-              <button onClick={reset} className="w-full py-3 text-amber-200/60 hover:text-amber-200 transition-colors flex items-center justify-center gap-2 hover:bg-white/5 rounded-xl">
-                <Camera size={16} /> Chụp tấm khác
-              </button>
             </div>
           )}
 
-          {/* 4. GALLERY SCREEN */}
+          {/* === STEP 4: GALLERY === */}
           {step === 'gallery' && (
-            <div className="flex flex-col h-[80vh] animate-in slide-in-from-right duration-500">
-              <div className="flex justify-between items-center mb-6 border-b border-amber-500/30 pb-4">
-                <h3 className="text-xl font-bold text-amber-400">Thư Viện Ảnh</h3>
-                <button onClick={() => setStep('home')} className="p-2 text-amber-200 hover:text-white bg-white/10 rounded-full">
+            <div className="flex-1 flex flex-col p-6 pt-16 animate-in slide-in-from-right duration-500">
+              <div className="flex justify-between items-center mb-4 pb-3 border-b-2 border-black">
+                <h3 className="text-xl font-black">THƯ VIỆN ẢNH</h3>
+                <button 
+                  onClick={() => setStep('landing')} 
+                  className="w-10 h-10 bg-white border-2 border-black rounded-full flex items-center justify-center shadow-[2px_2px_0px_black] hover:bg-gray-100"
+                >
                   <X size={20} />
                 </button>
               </div>
               
               {gallery.length === 0 ? (
-                <div className="flex-grow flex flex-col items-center justify-center text-amber-200/40 space-y-4">
-                  <ImageIcon size={64} strokeWidth={1} />
-                  <p>Chưa có hình ảnh nào</p>
+                <div className="flex-1 flex flex-col items-center justify-center text-black/40 space-y-4">
+                  <div className="w-20 h-20 border-[3px] border-dashed border-black/30 rounded-2xl flex items-center justify-center">
+                    <ImageIcon size={40} strokeWidth={1.5} />
+                  </div>
+                  <p className="font-bold">Chưa có hình ảnh nào</p>
+                  <button 
+                    onClick={handleStart}
+                    className="px-6 py-3 bg-[#CCFF00] border-2 border-black rounded-xl shadow-[3px_3px_0px_black] font-bold text-sm"
+                  >
+                    CHỤP NGAY
+                  </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 overflow-y-auto pb-20 custom-scrollbar pr-1">
+                <div className="grid grid-cols-2 gap-3 overflow-y-auto pb-4 flex-1 custom-scrollbar">
                   {gallery.map((item) => (
-                    <div key={item.id} className="relative group aspect-square rounded-lg overflow-hidden border border-amber-500/30 bg-black">
+                    <div 
+                      key={item.id} 
+                      className="relative group aspect-square rounded-xl overflow-hidden border-2 border-black bg-white shadow-[3px_3px_0px_black] hover:translate-y-[-2px] hover:shadow-[5px_5px_0px_black] transition-all"
+                    >
                       <img 
                         src={item.processed_image_url} 
                         alt="Gallery" 
@@ -396,9 +441,9 @@ const App = () => {
                           href={item.download_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-2 bg-amber-500 text-red-900 rounded-full hover:bg-amber-400"
+                          className="p-3 bg-[#CCFF00] text-black rounded-full border-2 border-black hover:scale-110 transition-transform"
                         >
-                          <Download size={18} />
+                          <Download size={20} />
                         </a>
                       </div>
                     </div>
@@ -408,47 +453,7 @@ const App = () => {
             </div>
           )}
 
-        </main>
-        
-        {/* Footer */}
-        <footer className="mt-4 pt-4 border-t border-amber-500/20 text-center relative z-10">
-          <div className="flex items-center justify-center gap-2 text-amber-200/40">
-            <span className="text-pink-300/50">🌸</span>
-            <p className="text-[10px] uppercase tracking-[0.2em]">
-              © 2026 AI Photobooth Experience
-            </p>
-            <span className="text-pink-300/50">🌸</span>
-          </div>
-        </footer>
-
-        {/* Floating Mobile Action Bar */}
-        {step !== 'home' && (
-          <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-black/40 backdrop-blur-md p-2 rounded-full shadow-lg">
-            <button
-              onClick={() => setStep('gallery')}
-              className="p-3 rounded-full bg-red-900/80 text-amber-200 shadow-sm"
-              aria-label="Gallery"
-            >
-              <ImageIcon size={20} />
-            </button>
-
-            <button
-              onClick={() => setIsCameraOpen(true)}
-              className="w-16 h-16 flex items-center justify-center rounded-full bg-amber-500 text-red-950 shadow-xl border-4 border-amber-200/40 active:scale-95"
-              aria-label="Take Photo"
-            >
-              <Camera size={28} />
-            </button>
-
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="p-3 rounded-full bg-red-900/80 text-amber-200 shadow-sm"
-              aria-label="Upload"
-            >
-              <Upload size={20} />
-            </button>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Camera Modal */}
@@ -457,6 +462,40 @@ const App = () => {
         onClose={() => setIsCameraOpen(false)}
         onCapture={processImage}
       />
+
+      {/* Custom Styles */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 { animation-delay: 2s; }
+        
+        @keyframes confetti {
+          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .animate-confetti {
+          animation: confetti 3s ease-out forwards;
+        }
+
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 0px;
+        }
+      `}} />
     </div>
   );
 };
