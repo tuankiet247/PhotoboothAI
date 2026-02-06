@@ -28,7 +28,7 @@ except Exception:
 class Settings:
     # API Configuration
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
-    AI_MODEL: str = os.getenv("AI_MODEL", "black-forest-labs/flux.2-pro")
+    AI_MODEL: str = os.getenv("AI_MODEL", "google/gemini-3-pro-image-preview")
     OPENROUTER_API_URL: str = "https://openrouter.ai/api/v1/chat/completions"
 
     # Server Configuration
