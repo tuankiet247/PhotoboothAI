@@ -20,6 +20,22 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
   
   // Flash effect
   const [flash, setFlash] = useState(false);
+  
+  // Low-end device detection
+  const [isLowEndDevice, setIsLowEndDevice] = useState(false);
+  
+  // Detect low-end device on mount
+  useEffect(() => {
+    const detectLowEnd = () => {
+      const ua = navigator.userAgent;
+      const isOldAndroid = /Android [2-5]/.test(ua);
+      const isOldChrome = /Chrome\/([2-4][0-9])/.test(ua);
+      const lowMemory = navigator.deviceMemory && navigator.deviceMemory < 4;
+      const slowCPU = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
+      return isOldAndroid || isOldChrome || lowMemory || slowCPU;
+    };
+    setIsLowEndDevice(detectLowEnd());
+  }, []);
 
   // Load danh sách camera khi mở modal
   useEffect(() => {
@@ -79,9 +95,12 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
 
-      // Cấu hình camera
+      // Cấu hình camera - giảm độ phân giải cho thiết bị yếu
       const constraints = {
-        video: {
+        video: isLowEndDevice ? {
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        } : {
           width: { ideal: 1920 },
           height: { ideal: 1080 }
         },
@@ -124,12 +143,13 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
     setIsReady(false);
   };
 
-  // Bắt đầu đếm ngược 5 giây
+  // Bắt đầu đếm ngược - 3 giây cho thiết bị yếu, 5 giây cho thiết bị mạnh
   const startCountdown = () => {
     if (!isReady || isCountingDown) return;
     
     setIsCountingDown(true);
-    setCountdown(5);
+    const countdownStart = isLowEndDevice ? 3 : 5;
+    setCountdown(countdownStart);
     
     countdownRef.current = setInterval(() => {
       setCountdown(prev => {
@@ -138,12 +158,16 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
           clearInterval(countdownRef.current);
           countdownRef.current = null;
           setIsCountingDown(false);
-          // Flash effect và chụp ảnh
-          setFlash(true);
-          setTimeout(() => {
-            setFlash(false);
+          // Flash effect và chụp ảnh - giảm thời gian cho thiết bị yếu
+          if (!isLowEndDevice) {
+            setFlash(true);
+            setTimeout(() => {
+              setFlash(false);
+              capturePhoto();
+            }, 150);
+          } else {
             capturePhoto();
-          }, 150);
+          }
           return null;
         }
         return prev - 1;
@@ -299,19 +323,24 @@ const CameraModal = ({ isOpen, onClose, onCapture }) => {
                 <div className="absolute bottom-28 left-4 w-8 h-8 border-b-[4px] border-l-[4px] border-[#CCFF00]"></div>
               </div>
               
-              {/* Countdown Display */}
+              {/* Countdown Display - gi\u1ea3m hi\u1ec7u \u1ee9ng cho thi\u1ebft b\u1ecb y\u1ebfu */}
               {isCountingDown && countdown !== null && (
-                <div className="absolute inset-0 flex items-center justify-center z-40 bg-white/30 backdrop-blur-sm">
+                <div className={`absolute inset-0 flex items-center justify-center z-40 ${isLowEndDevice ? 'bg-white/50' : 'bg-white/30 backdrop-blur-sm'}`}>
                   <div className="relative">
-                    <div className="w-48 h-48 rounded-full border-[6px] border-black flex items-center justify-center bg-white shadow-[6px_6px_0px_black]">
-                      <span className="text-[100px] font-black text-[#FF00FF] italic" style={{ WebkitTextStroke: '2px black' }}>
+                    <div className={`flex items-center justify-center bg-white ${isLowEndDevice ? 'w-32 h-32 rounded-full border-4 border-black shadow-[4px_4px_0px_black]' : 'w-48 h-48 rounded-full border-[6px] border-black shadow-[6px_6px_0px_black]'}`}>
+                      <span 
+                        className={`font-black text-[#FF00FF] italic ${isLowEndDevice ? 'text-[60px]' : 'text-[100px]'}`} 
+                        style={isLowEndDevice ? {} : { WebkitTextStroke: '2px black' }}
+                      >
                         {countdown}
                       </span>
                     </div>
-                    <div 
-                      key={countdown}
-                      className="absolute inset-0 rounded-full bg-[#CCFF00]/30 animate-ping"
-                    />
+                    {!isLowEndDevice && (
+                      <div 
+                        key={countdown}
+                        className="absolute inset-0 rounded-full bg-[#CCFF00]/30 animate-ping"
+                      />
+                    )}
                   </div>
                 </div>
               )}
