@@ -10,14 +10,14 @@ export default defineConfig(({ command }) => {
     plugins: [
       react(),
       legacy({
-        targets: ['Android >= 6', 'Chrome >= 49', 'iOS >= 10', 'Safari >= 10'],
+        targets: ['Android >= 5', 'Chrome >= 37', 'iOS >= 9', 'Safari >= 9'],
         additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
         modernPolyfills: true,
       }),
     ],
     build: {
-      target: ['es2015', 'chrome49', 'safari10'],
-      cssTarget: ['chrome49', 'safari10'],
+      target: ['es2015', 'chrome37', 'safari9'],
+      cssTarget: ['chrome37', 'safari9'],
     },
     esbuild: {
       target: 'es2015',
