@@ -107,7 +107,25 @@ const App = () => {
   };
 
   // Reset về màn hình chính
-  const reset = () => {
+  const reset = async () => {
+    // Clear browser caches
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      } catch (err) {
+        console.warn('Could not clear caches:', err);
+      }
+    }
+    
+    // Revoke object URLs để giải phóng bộ nhớ
+    if (capturedImage && capturedImage.startsWith('blob:')) {
+      URL.revokeObjectURL(capturedImage);
+    }
+    if (aiImage && aiImage.startsWith('blob:')) {
+      URL.revokeObjectURL(aiImage);
+    }
+    
     setCapturedImage(null);
     setAiImage(null);
     setQrCode(null);
