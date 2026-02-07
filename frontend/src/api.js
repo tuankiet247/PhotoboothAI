@@ -14,6 +14,9 @@ export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
   },
   timeout: 180000, // 3 minutes timeout for AI processing
 });
@@ -25,6 +28,7 @@ export const uploadImage = async (file) => {
   const response = await api.post('/api/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
+      'Cache-Control': 'no-cache',
     },
   });
 
@@ -36,6 +40,9 @@ export const getQRCode = (imageId) => `${API_BASE_URL}/api/image/${imageId}/qr?t
 export const getDownloadUrl = (imageId) => `${API_BASE_URL}/api/download/${imageId}`;
 
 export const getGallery = async () => {
-  const response = await api.get('/api/gallery');
+  const response = await api.get('/api/gallery', {
+    params: { t: Date.now() }, // Cache bust
+    headers: { 'Cache-Control': 'no-cache' }
+  });
   return response.data;
 };
