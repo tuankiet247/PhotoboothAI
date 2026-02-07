@@ -31,7 +31,7 @@ class AIService:
 - Open and load Logo.png file
 - Keep original design intact
 - Will be placed in top-left corner
-
+📌 STEP 3: CREATE BACKGROUND (Bright Tech Tết Style)
 - Create illustrated Tết background:
   + Gradient: Deep red → warm orange-gold
   + Gold circuit board patterns (tech style)
