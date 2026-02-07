@@ -30,27 +30,11 @@ const App = () => {
   // Confetti animation
   const [showConfetti, setShowConfetti] = useState(false);
   
-  // Low-end device detection (Android 5, older browsers)
-  const [isLowEndDevice, setIsLowEndDevice] = useState(false);
-  
   // --- REFS ---
   // Ref cho input upload ảnh từ thư viện
   const fileInputRef = useRef(null);
 
   // --- EFFECTS ---
-
-  // Detect low-end device on mount
-  useEffect(() => {
-    const detectLowEnd = () => {
-      const ua = navigator.userAgent;
-      const isOldAndroid = /Android [2-5]/.test(ua);
-      const isOldChrome = /Chrome\/([2-4][0-9])/.test(ua);
-      const lowMemory = navigator.deviceMemory && navigator.deviceMemory < 4;
-      const slowCPU = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
-      return isOldAndroid || isOldChrome || lowMemory || slowCPU;
-    };
-    setIsLowEndDevice(detectLowEnd());
-  }, []);
 
   // Load gallery khi mở app
   useEffect(() => {
@@ -107,10 +91,8 @@ const App = () => {
         
         // 4. Chuyển sang màn hình kết quả
         setStep('result');
-        if (!isLowEndDevice) {
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 3000);
-        }
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
         loadGallery();
       } else {
         throw new Error('Processing failed');
@@ -125,25 +107,7 @@ const App = () => {
   };
 
   // Reset về màn hình chính
-  const reset = async () => {
-    // Clear browser caches
-    if ('caches' in window) {
-      try {
-        const cacheNames = await caches.keys();
-        await Promise.all(cacheNames.map(name => caches.delete(name)));
-      } catch (err) {
-        console.warn('Could not clear caches:', err);
-      }
-    }
-    
-    // Revoke object URLs để giải phóng bộ nhớ
-    if (capturedImage && capturedImage.startsWith('blob:')) {
-      URL.revokeObjectURL(capturedImage);
-    }
-    if (aiImage && aiImage.startsWith('blob:')) {
-      URL.revokeObjectURL(aiImage);
-    }
-    
+  const reset = () => {
     setCapturedImage(null);
     setAiImage(null);
     setQrCode(null);
@@ -188,27 +152,20 @@ const App = () => {
         <div className="absolute inset-0 opacity-20" 
              style={{ backgroundImage: 'linear-gradient(#000 2px, transparent 2px), linear-gradient(90deg, #000 2px, transparent 2px)', backgroundSize: '40px 40px' }}>
         </div>
-        {/* Blob effects - tắt cho thiết bị yếu vì blur rất nặng */}
-        {!isLowEndDevice && (
-          <>
-            <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#FF00FF] rounded-full blur-[120px] opacity-20 animate-blob"></div>
-            <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-[#00FFFF] rounded-full blur-[100px] opacity-20 animate-blob animation-delay-2000"></div>
-          </>
-        )}
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#FF00FF] rounded-full blur-[120px] opacity-20 animate-blob"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-[#00FFFF] rounded-full blur-[100px] opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
-      {/* Hiệu ứng hoa đào rơi - giảm cho thiết bị yếu */}
-      <PetalsFalling count={isLowEndDevice ? 10 : 25} />
+      {/* Hiệu ứng hoa đào rơi */}
+      <PetalsFalling count={40} />
       
-      {/* Hiệu ứng pháo hoa - tắt cho thiết bị yếu */}
-      {!isLowEndDevice && (
-        <Fireworks show={step === 'landing' || step === 'result'} intensity={step === 'result' ? 'medium' : 'low'} />
-      )}
+      {/* Hiệu ứng pháo hoa */}
+      <Fireworks show={step === 'landing' || step === 'result'} intensity={step === 'result' ? 'high' : 'medium'} />
 
-      {/* --- CONFETTI --- giảm số lượng */}
-      {showConfetti && !isLowEndDevice && (
+      {/* --- CONFETTI --- */}
+      {showConfetti && (
         <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
-          {[...Array(15)].map((_, i) => (
+          {[...Array(40)].map((_, i) => (
             <div
               key={i}
               className="absolute animate-confetti border border-black"
