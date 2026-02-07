@@ -108,14 +108,24 @@ const App = () => {
 
   // Reset về màn hình chính
   const reset = async () => {
-    // Clear browser caches
+    // Clear browser caches (Cache API)
     if ('caches' in window) {
       try {
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map(name => caches.delete(name)));
+        console.log('Browser caches cleared');
       } catch (err) {
         console.warn('Could not clear caches:', err);
       }
+    }
+    
+    // Clear localStorage và sessionStorage
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      console.log('Storage cleared');
+    } catch (err) {
+      console.warn('Could not clear storage:', err);
     }
     
     // Revoke object URLs để giải phóng bộ nhớ
@@ -126,6 +136,15 @@ const App = () => {
       URL.revokeObjectURL(aiImage);
     }
     
+    // Force clear image cache bằng cách tạo request mới
+    if (aiImage) {
+      try {
+        const img = new Image();
+        img.src = aiImage + '?bust=' + Date.now();
+      } catch (err) {}
+    }
+    
+    // Reset all states
     setCapturedImage(null);
     setAiImage(null);
     setQrCode(null);
@@ -133,6 +152,11 @@ const App = () => {
     setError(null);
     setShowConfetti(false);
     setStep('landing');
+    
+    // Force reload gallery
+    loadGallery();
+    
+    console.log('Reset complete - cache cleared');
   };
 
   // Tải ảnh
