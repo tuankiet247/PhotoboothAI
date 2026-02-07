@@ -1,12 +1,27 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import legacy from '@vitejs/plugin-legacy'
 import fs from 'fs'
 import path from 'path'
 
 // Only load local HTTPS certs for the dev server. Avoid reading files during build/CI.
 export default defineConfig(({ command }) => {
   const config = {
-    plugins: [react()],
+    plugins: [
+      react(),
+      legacy({
+        targets: ['Android >= 6', 'Chrome >= 49', 'iOS >= 10', 'Safari >= 10'],
+        additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+        modernPolyfills: true,
+      }),
+    ],
+    build: {
+      target: ['es2015', 'chrome49', 'safari10'],
+      cssTarget: ['chrome49', 'safari10'],
+    },
+    esbuild: {
+      target: 'es2015',
+    },
   };
 
   if (command === 'serve') {
