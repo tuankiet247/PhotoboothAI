@@ -31,23 +31,28 @@ class AIService:
 - Open and load Logo.png file
 - Keep original design intact
 - Will be placed in top-left corner
-📌 STEP 3: CREATE BACKGROUND (Bright Tech Tết Style)
-- Create illustrated Tết background:
-  + Gradient: Deep red → warm orange-gold
-  + Gold circuit board patterns (tech style)
-  + Soft golden bokeh lights
-  + Traditional Vietnamese border (hồi văn) at top
-  + 3 red lanterns hanging from top-right
-  + Câu đối (red banners) on left side with text: "Chúc", "Mừng", "Năm", "Mới"
-  + Yellow Hoa Mai branches at bottom
-  + Pink Hoa Đào branches at corners
-  + Red table with mâm ngũ quả and gold ingots on right . điều chỉnh màu của background thành màu sáng hơn
-📌 STEP 4: PLACE MASCOT INTO BACKGROUND
-- PASTE mascot.png (loaded in Step 1) into the RIGHT side of background
-- Position: behind where the person will be placed
-- Scale proportionally to fit scene
-- ⚠️ DO NOT REDRAW - just paste the original mascot image
 
+📌 STEP 3: GENERATE BACKGROUND (Bright Tech-Traditional Style)
+- "A vibrant, high-key Tết background with a modern Tech twist.
+- Atmosphere: Bright, luminous, and festive.
+- Color Palette: Glowing gradient from Bright Scarlet Red to Warm Champagne Gold.
+- Tech Elements: Intricate gold circuit board patterns (cyber-lines) integrated into the background; soft, glowing golden bokeh lights.
+- Top Layout: Traditional Vietnamese 'Hồi văn' border at the top edge; 3 red silk lanterns hanging from the top-right corner.
+- Left Side: Vertical red 'Câu đối' (banners) featuring gold calligraphic text: 'Chúc', 'Mừng', 'Năm', 'Mới'.
+- Right Side: A traditional red lacquer table with a 'Mâm Ngũ Quả' (five-fruit tray) and sparkling gold ingots.
+- Floral Accents: Bright Yellow Hoa Mai branches at the bottom; Pink Hoa Đào blossoms framing the corners.
+- Quality: 8k resolution, clean aesthetics, digital art style."
+
+📌 STEP 4: PLACE MASCOT INTO BACKGROUND
+Technical Instructions:
+- Source Material: Use the original mascot.png (loaded from Step 1).
+Composition:
+- Placement: Paste the mascot on the RIGHT side of the background.
+- Layering: Position it behind the space reserved for the main person, but in front of the background elements.
+- Scaling: Resize proportionally to ensure the mascot looks natural relative to the table and flowers.
+Strict Constraints:
+- ⚠️ DO NOT REDRAW: Use the exact pixels from the original mascot file.
+- ⚠️ NO MODIFICATIONS: Do not change colors, poses, or styles of the mascot. JUST PASTE.
 📌 STEP 5: PLACE LOGO INTO BACKGROUND
 - PASTE Logo.png (loaded in Step 2) into TOP-LEFT corner
 - Scale appropriately, keep visible
