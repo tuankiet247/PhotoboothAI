@@ -34,15 +34,7 @@ class AIService:
 
 📌 STEP 3: CREATE BACKGROUND
 - Create illustrated Tết background:
-  + Gradient: Deep red → warm orange-gold
-  + Gold circuit board patterns (tech style)
-  + Soft golden bokeh lights
-  + Traditional Vietnamese border (hồi văn) at top
-  + 3 red lanterns hanging from top-right
-  + Câu đối (red banners) on left side with text: "Chúc", "Mừng", "Sức", "Như", "Nắng"
-  + Yellow Hoa Mai branches at bottom
-  + Pink Hoa Đào branches at corners
-  + Red table with mâm ngũ quả and gold ingots on right
+  "A creative Lunar New Year background, bright and festive atmosphere. Theme: High-tech meets Tradition. Elements: A dynamic mix of golden circuit board patterns, glowing bokeh, and random traditional Vietnamese items (choice of: Ochna flowers, Peach blossoms, Calligraphy scrolls, or Lucky coins). Style: 3D abstract render, bright vibrant colors (Red, Gold, Neon Orange). Composition: Open layout for text, highly detailed, varied perspectives, 8k resolution."
 
 📌 STEP 4: PLACE MASCOT INTO BACKGROUND
 - PASTE mascot.png (loaded in Step 1) into the RIGHT side of background
