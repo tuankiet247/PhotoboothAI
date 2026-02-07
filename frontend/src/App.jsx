@@ -108,29 +108,8 @@ const App = () => {
 
   // Reset về màn hình chính - reload lại trang hoàn toàn
   const reset = () => {
-    // Clear caches trước khi reload
-    if ('caches' in window) {
-      caches.keys().then(names => {
-        names.forEach(name => caches.delete(name));
-      });
-    }
-    
-    // Clear storage
-    try {
-      localStorage.clear();
-      sessionStorage.clear();
-    } catch (err) {}
-    
-    // Revoke blob URLs
-    if (capturedImage && capturedImage.startsWith('blob:')) {
-      URL.revokeObjectURL(capturedImage);
-    }
-    if (aiImage && aiImage.startsWith('blob:')) {
-      URL.revokeObjectURL(aiImage);
-    }
-    
-    // Force reload trang - quay về trang chủ với cache bust
-    window.location.href = window.location.origin + window.location.pathname + '?t=' + Date.now();
+    // Đơn giản nhất: reload trang
+    window.location.reload();
   };
 
   // Tải ảnh
