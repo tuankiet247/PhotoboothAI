@@ -32,38 +32,16 @@ class AIService:
 - Keep original design intact
 - Will be placed in top-left corner
 
-📌 STEP 3: CREATE BACKGROUND (Bright Tech Tết Style)
-
-Automatically generate illustrated Tết background with bright, vibrant colors and a modern tech aesthetic:
-
-Gradient background: bright crimson red → luminous orange-gold → soft light gold (high-key, airy tone)
-
-Subtle gold circuit board patterns, thin lines, semi-transparent, futuristic style
-
-Soft glowing golden bokeh lights, evenly distributed for a festive and lively feel
-
-Traditional Vietnamese geometric border (hồi văn) at the top, refined gold color, minimal thickness
-
-Three bright red lanterns hanging from the top-right, with soft inner glow
-
-Vertical red couplets (câu đối) on the left side with golden calligraphy text:
-
-“Chúc”
-
-“Mừng”
-
-“Năm”
-
-“Mới”
-
-Yellow Hoa Mai branches at the bottom, fresh and vivid petals
-
-Pink Hoa Đào branches at the corners, light pastel pink for balance
-
-Bright red table on the right with a mâm ngũ quả, shiny fruits, and polished gold ingots
-
-Overall lighting: high brightness, clean highlights, low shadow density, cheerful spring atmosphere
-
+- Create illustrated Tết background:
+  + Gradient: Deep red → warm orange-gold
+  + Gold circuit board patterns (tech style)
+  + Soft golden bokeh lights
+  + Traditional Vietnamese border (hồi văn) at top
+  + 3 red lanterns hanging from top-right
+  + Câu đối (red banners) on left side with text: "Chúc", "Mừng", "Năm", "Mới"
+  + Yellow Hoa Mai branches at bottom
+  + Pink Hoa Đào branches at corners
+  + Red table with mâm ngũ quả and gold ingots on right . điều chỉnh màu của background thành màu sáng hơn
 📌 STEP 4: PLACE MASCOT INTO BACKGROUND
 - PASTE mascot.png (loaded in Step 1) into the RIGHT side of background
 - Position: behind where the person will be placed
